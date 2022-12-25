@@ -664,11 +664,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 
+  cloudProjectId: 7f3db76a-488c-468f-a768-e5486a1555cc
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: VistraGame
+  organizationId: theblazingtorchic
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 
