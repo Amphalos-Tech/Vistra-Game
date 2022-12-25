@@ -27,31 +27,16 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!wallJumpMove)
-            Invoke("ResetWallJumpMove", 0.5f);
-        if (wallJumpMove)
-            moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
-
+        moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
         if (Input.GetKeyDown(KeyCode.Space))
         {
             IsOnGround();
-            if(IsOnWall())
-            {
+            if (canJump || IsOnWall())
                 canDoubleJump = true;
-                wallJumpMove = false;
-                if (wallOnLeft)
-                    moveDirection = new Vector2(1, 0);
-                else
-                    moveDirection = new Vector2(-1, 0);
-            }
-            if (canJump)
-                canDoubleJump = true;
-            if(canDoubleJump || canJump)
+            if (canDoubleJump || canJump)
                 jump = 1;
-            if(canDoubleJump && !canJump)
+            if (canDoubleJump && !canJump)
                 canDoubleJump = false;
-
-            
         }
         else
             jump = 0;
