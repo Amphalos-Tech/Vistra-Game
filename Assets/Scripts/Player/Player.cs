@@ -44,7 +44,8 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.velocity = new Vector2(moveDirection.x * moveSpeed * Time.deltaTime, rb.velocity.y + jump * jumpSpeed * Time.deltaTime);
+        rb.velocity = new Vector2(moveDirection.x * moveSpeed * Time.deltaTime, rb.velocity.y);
+        rb.AddForce(new Vector2(0, jump * jumpSpeed * Time.deltaTime), ForceMode2D.Impulse);
     }
 
     public void IsOnGround()
