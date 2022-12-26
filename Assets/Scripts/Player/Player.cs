@@ -15,42 +15,45 @@ public class Player : MonoBehaviour
     private float dashCooldownCount;
     private bool canDash => dashCooldownCount > 0;
 
+    private Animator animator;
     private Rigidbody2D rb;
     private Vector2 moveDirection;
-    private int jump;
     private bool isDashing;
     private bool wallOnLeft;
-    private bool wallJumpMove;
+    [SerializeField] private bool canWallJump;
 
     // Start is called before the first frame update
     void Start()
     {
         canDoubleJump = true;
-        wallJumpMove = true;
         dashCooldownCount = 0;
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();  
     }
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(IsOnWall());
+        IsOnGround();
+        animator.SetBool("isgrounded", canJump);
         moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetButtonDown("Jump"))
         {
-            IsOnGround();
-            if (canJump || IsOnWall())
+            if (canJump)
                 canDoubleJump = true;
-            if (canDoubleJump || canJump)
-                jump = 1;
+            if(IsOnWall())
+                canWallJump = true;
+            if (canDoubleJump || canJump || canWallJump)
+                StartCoroutine(Jump());
             if (canDoubleJump && !canJump)
                 canDoubleJump = false;
+            canWallJump = false;
         }
-        else
-            jump = 0;
 
         if (dashCooldownCount > 0)
             dashCooldownCount -= Time.deltaTime;
 
-        if(Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownCount <= 0)
+        if(Input.GetButtonDown("Dash") && dashCooldownCount <= 0)
         {
             dashCooldownCount = dashCooldown;
             isDashing = true;
@@ -60,19 +63,52 @@ public class Player : MonoBehaviour
     void FixedUpdate()
     {
         rb.velocity = new Vector2(moveDirection.x * moveSpeed * Time.deltaTime, rb.velocity.y);
-        rb.AddForce(new Vector2(0, jump * jumpSpeed * Time.deltaTime), ForceMode2D.Impulse);
+        if (rb.velocity.x < 0)
+        {
+            animator.SetBool("Moving", true);
+            transform.localRotation = Quaternion.Euler(0, 180, 0);
+        }
+        else if (rb.velocity.x > 0)
+        {
+            animator.SetBool("Moving", true);
+            transform.localRotation = Quaternion.Euler(0, 0, 0);
+        }
+        else
+            animator.SetBool("Moving", false);
 
-        if(isDashing)
+        if (isDashing)
         {
             StartCoroutine(Dash());
         }
+    }
+
+    public IEnumerator Jump()
+    {
+        bool jumping = false;
+        if(canJump || canDoubleJump)
+            jumping = true;
+        if (canWallJump)
+        {
+            jumping = true;
+            if (rb.velocity == Vector2.zero || !(wallOnLeft ? moveDirection.x > 0 : moveDirection.x < 0)) 
+            {
+                Debug.Log("G");
+                jumping = false;
+            }
+        }
+
+        if (jumping)
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y + jumpSpeed * Time.deltaTime);
+
+
+
+        yield return new WaitForSeconds(0.1f);
     }
 
     public IEnumerator Dash()
     {
         rb.AddForce(new Vector2(dashSpeed * moveDirection.x * Time.deltaTime, 0), ForceMode2D.Impulse);
         yield return new WaitForSeconds(0.15f);
-        //rb.velocity = Vector2.zero;
         isDashing = false;
     }
 
@@ -83,24 +119,18 @@ public class Player : MonoBehaviour
 
     public bool IsOnWall()
     {
-        if(!canJump)
+        if (!canJump)
         {
-            if(Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.right, 0.1f, groundLayer))
+            if(Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.right, 0.15f, groundLayer))
             {
                 wallOnLeft = false;
                 return true;
-            }
-            else if(Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.left, 0.1f, groundLayer))
+            } else if(Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.left, 0.15f, groundLayer))
             {
                 wallOnLeft = true;
                 return true;
             }
         }
         return false;
-    }
-
-    public void ResetWallJumpMove()
-    {
-        wallJumpMove = true;
     }
 }
