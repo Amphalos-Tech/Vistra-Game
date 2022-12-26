@@ -751,8 +751,8 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  dashSpeed: 0
-  dashCooldown: 0
+  dashSpeed: 2000
+  dashCooldown: 1
 --- !u!212 &1953003929
 SpriteRenderer:
   m_ObjectHideFlags: 0
