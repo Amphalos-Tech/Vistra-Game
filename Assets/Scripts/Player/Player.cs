@@ -5,15 +5,20 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public float moveSpeed;
-    public float maxVelocity;
     public float jumpSpeed;
     public bool canJump;
     public bool canDoubleJump;
     public LayerMask groundLayer;
 
+    public float dashSpeed;
+    public float dashCooldown;
+    private float dashCooldownCount;
+    private bool canDash => dashCooldownCount > 0;
+
     private Rigidbody2D rb;
     private Vector2 moveDirection;
     private int jump;
+    private bool isDashing;
     private bool wallOnLeft;
     private bool wallJumpMove;
 
@@ -22,6 +27,7 @@ public class Player : MonoBehaviour
     {
         canDoubleJump = true;
         wallJumpMove = true;
+        dashCooldownCount = 0;
         rb = GetComponent<Rigidbody2D>();
     }
     // Update is called once per frame
@@ -40,12 +46,34 @@ public class Player : MonoBehaviour
         }
         else
             jump = 0;
+
+        if (dashCooldownCount > 0)
+            dashCooldownCount -= Time.deltaTime;
+
+        if(Input.GetKeyDown(KeyCode.LeftShift) && dashCooldownCount <= 0)
+        {
+            dashCooldownCount = dashCooldown;
+            isDashing = true;
+        }
     }
 
     void FixedUpdate()
     {
         rb.velocity = new Vector2(moveDirection.x * moveSpeed * Time.deltaTime, rb.velocity.y);
         rb.AddForce(new Vector2(0, jump * jumpSpeed * Time.deltaTime), ForceMode2D.Impulse);
+
+        if(isDashing)
+        {
+            StartCoroutine(Dash());
+        }
+    }
+
+    public IEnumerator Dash()
+    {
+        rb.AddForce(new Vector2(dashSpeed * moveDirection.x * Time.deltaTime, 0), ForceMode2D.Impulse);
+        yield return new WaitForSeconds(0.15f);
+        //rb.velocity = Vector2.zero;
+        isDashing = false;
     }
 
     public void IsOnGround()
