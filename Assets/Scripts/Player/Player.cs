@@ -6,6 +6,8 @@ public class Player : MonoBehaviour
 {
     public float moveSpeed;
     public float jumpSpeed;
+    public float fallSpeed;
+    public float lowFall;
     public bool canJump;
     public bool canDoubleJump;
     public LayerMask groundLayer;
@@ -18,6 +20,7 @@ public class Player : MonoBehaviour
     private Animator animator;
     private Rigidbody2D rb;
     private Vector2 moveDirection;
+    private bool hasJumped;
     private bool isDashing;
     private bool wallOnLeft;
     [SerializeField] private bool canWallJump;
@@ -33,7 +36,11 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(IsOnWall());
+        if (rb.velocity.y < 0)
+            rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeed - 1) * Time.deltaTime;
+        else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
+            rb.velocity += Vector2.up * Physics2D.gravity.y * (lowFall - 1) * Time.deltaTime;
+
         IsOnGround();
         animator.SetBool("isgrounded", canJump);
         moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
@@ -41,14 +48,24 @@ public class Player : MonoBehaviour
         {
             if (canJump)
                 canDoubleJump = true;
-            if(IsOnWall())
-                canWallJump = true;
-            if (canDoubleJump || canJump || canWallJump)
-                StartCoroutine(Jump());
-            if (canDoubleJump && !canJump)
+
+            if (canDoubleJump || canJump)
+                Jump(1f);
+            if (hasJumped && canDoubleJump)
                 canDoubleJump = false;
+            if (canDoubleJump && !canJump && Input.GetButtonUp("Jump"))
+            {
+                hasJumped = true;
+            }
+        }
+        if (IsOnWall() && (wallOnLeft ? moveDirection.x > 0 : moveDirection.x < 0) && Input.GetButton("Jump") && canWallJump)
+        {
+            Jump(1.2f);
+            canDoubleJump = false;
             canWallJump = false;
         }
+        if (IsOnWall() && rb.velocity == Vector2.zero)
+            canWallJump = true;
 
         if (dashCooldownCount > 0)
             dashCooldownCount -= Time.deltaTime;
@@ -62,7 +79,7 @@ public class Player : MonoBehaviour
 
     void FixedUpdate()
     {
-        rb.velocity = new Vector2(moveDirection.x * moveSpeed * Time.deltaTime, rb.velocity.y);
+        rb.velocity = new Vector2(moveDirection.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
         if (rb.velocity.x < 0)
         {
             animator.SetBool("Moving", true);
@@ -82,27 +99,9 @@ public class Player : MonoBehaviour
         }
     }
 
-    public IEnumerator Jump()
+    public void Jump(float divider)
     {
-        bool jumping = false;
-        if(canJump || canDoubleJump)
-            jumping = true;
-        if (canWallJump)
-        {
-            jumping = true;
-            if (rb.velocity == Vector2.zero || !(wallOnLeft ? moveDirection.x > 0 : moveDirection.x < 0)) 
-            {
-                Debug.Log("G");
-                jumping = false;
-            }
-        }
-
-        if (jumping)
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y + jumpSpeed * Time.deltaTime);
-
-
-
-        yield return new WaitForSeconds(0.1f);
+        rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y + jumpSpeed/divider * Time.deltaTime);
     }
 
     public IEnumerator Dash()
