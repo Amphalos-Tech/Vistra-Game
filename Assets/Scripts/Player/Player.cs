@@ -8,8 +8,6 @@ public class Player : MonoBehaviour
     public float jumpSpeed;
     public float fallSpeed;
     public float lowFall;
-    public bool canJump;
-    public bool canDoubleJump;
     public LayerMask groundLayer;
 
     public float dashSpeed;
@@ -19,8 +17,11 @@ public class Player : MonoBehaviour
     private Animator animator;
     private Rigidbody2D rb;
     private Vector2 moveDirection;
+    private bool canJump;
+    private bool canDoubleJump;
     private bool wallOnLeft;
-    [SerializeField] private bool canWallJump;
+    private bool canWallJump;
+    private GameObject oneWayPlatform;
 
     // Start is called before the first frame update
     void Start()
@@ -98,6 +99,9 @@ public class Player : MonoBehaviour
             dashCooldownCount = dashCooldown;
             animator.SetBool("isDashing", true);
         }
+
+        if (Input.GetAxis("Vertical") < 0 && oneWayPlatform != null)
+            StartCoroutine(FallThrough());
     }
 
     void FixedUpdate()
@@ -128,6 +132,29 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("OneWayPlatform"))
+            oneWayPlatform = collision.gameObject;
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if(collision.gameObject.CompareTag("OneWayPlatform"))
+            oneWayPlatform = null;
+    }
+
+    public IEnumerator FallThrough()
+    {
+        BoxCollider2D platformCollider = oneWayPlatform.GetComponent<BoxCollider2D>();
+        BoxCollider2D playerCollider = GetComponent<BoxCollider2D>();
+
+        Physics2D.IgnoreCollision(platformCollider, playerCollider);
+
+        yield return new WaitForSeconds(0.5f);
+        Physics2D.IgnoreCollision(platformCollider, playerCollider, false);
+    }
+
     public void Jump(float divider)
     {
         if (divider == 1f)
@@ -152,16 +179,30 @@ public class Player : MonoBehaviour
 
     public bool IsOnWall()
     {
+        RaycastHit2D wall;
         if (!canJump)
         {
-            if(Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.right, 0.15f, groundLayer))
+            if (Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.right, 0.15f, groundLayer))
             {
-                wallOnLeft = false;
-                return true;
-            } else if(Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.left, 0.15f, groundLayer))
+                wall = Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.right, 0.15f, groundLayer);
+                if (wall.collider.gameObject.CompareTag("OneWayPlatform"))
+                    return false;
+                else
+                {
+                    wallOnLeft = false;
+                    return true;
+                }
+            }
+            else if (Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.left, 0.15f, groundLayer))
             {
-                wallOnLeft = true;
-                return true;
+                wall = Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.left, 0.15f, groundLayer);
+                if (wall.collider.gameObject.gameObject.CompareTag("OneWayPlatform"))
+                    return false;
+                else
+                {
+                    wallOnLeft = true;
+                    return true;
+                }
             }
         }
         return false;
