@@ -29,7 +29,9 @@ public class Player : MonoBehaviour
     void Start()
     {
         canDoubleJump = true;
+        isDashing = false;
         dashCooldownCount = 0;
+        Physics.gravity = new Vector3(0, -9.8f, 0);
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();  
     }
@@ -37,12 +39,21 @@ public class Player : MonoBehaviour
     void Update()
     {
         if (rb.velocity.y < 0)
+        {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeed - 1) * Time.deltaTime;
-        else if (rb.velocity.y > 0 && !Input.GetButton("Jump"))
+            animator.SetBool("isFalling", true);
+            animator.SetBool("isJumping", false);
+        }
+        else if (rb.velocity.y > 0)
+        {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (lowFall - 1) * Time.deltaTime;
+            animator.SetBool("isFalling", false);
+        } else
+            animator.SetBool("isFalling", false);
 
         IsOnGround();
         animator.SetBool("isgrounded", canJump);
+        animator.SetBool("isDashing", isDashing);
         moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
         if (Input.GetButtonDown("Jump"))
         {
@@ -60,7 +71,7 @@ public class Player : MonoBehaviour
         }
         if (IsOnWall() && (wallOnLeft ? moveDirection.x > 0 : moveDirection.x < 0) && Input.GetButton("Jump") && canWallJump)
         {
-            Jump(1.2f);
+            Jump(0.75f);
             canDoubleJump = false;
             canWallJump = false;
         }
@@ -70,7 +81,7 @@ public class Player : MonoBehaviour
         if (dashCooldownCount > 0)
             dashCooldownCount -= Time.deltaTime;
 
-        if(Input.GetButtonDown("Dash") && dashCooldownCount <= 0)
+        if(Input.GetButtonDown("Dash") && dashCooldownCount <= 0 && moveDirection.x != 0)
         {
             dashCooldownCount = dashCooldown;
             isDashing = true;
@@ -82,12 +93,18 @@ public class Player : MonoBehaviour
         rb.velocity = new Vector2(moveDirection.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
         if (rb.velocity.x < 0)
         {
-            animator.SetBool("Moving", true);
+            if(canJump)
+                animator.SetBool("Moving", true);
+            else
+                animator.SetBool("Moving", false);
             transform.localRotation = Quaternion.Euler(0, 180, 0);
         }
         else if (rb.velocity.x > 0)
         {
-            animator.SetBool("Moving", true);
+            if (canJump)
+                animator.SetBool("Moving", true);
+            else
+                animator.SetBool("Moving", false);
             transform.localRotation = Quaternion.Euler(0, 0, 0);
         }
         else
@@ -101,7 +118,9 @@ public class Player : MonoBehaviour
 
     public void Jump(float divider)
     {
-        rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y + jumpSpeed/divider * Time.deltaTime);
+        if (divider == 1f)
+            animator.SetBool("isJumping", true);
+        rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y + jumpSpeed/divider);
     }
 
     public IEnumerator Dash()
