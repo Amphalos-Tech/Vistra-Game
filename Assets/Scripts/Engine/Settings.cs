@@ -19,6 +19,11 @@ public class Settings : MonoBehaviour
         if (Instance != null && Instance != this)
             Destroy(this);
         else
+        {
+            SaveHandler.LoadSave();
+            //Volumes = SaveHandler.Volumes;
+            //Quality = SaveHandler.Quality;
             Instance = this;
+        }
     }
 }
