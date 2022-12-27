@@ -166,7 +166,7 @@ public class Player : MonoBehaviour
 
     public IEnumerator Dash()
     {
-        rb.AddForce(new Vector2(dashSpeed * moveDirection.x, 0), ForceMode2D.Impulse);
+        rb.AddForce(new Vector2(dashSpeed * moveDirection.x * Time.deltaTime, 0), ForceMode2D.Impulse);
         rb.velocity = new Vector2(rb.velocity.x, 0);
         yield return new WaitForSeconds(0.15f);
         animator.SetBool("isDashing", false);
