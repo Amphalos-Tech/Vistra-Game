@@ -60,7 +60,7 @@ public class Player : MonoBehaviour
             if (canJump)
                 canDoubleJump = true;
 
-            if (canDoubleJump || canJump)
+            if ((canDoubleJump || canJump) && !IsOnWall())
                 Jump(1f);
             if (hasJumped && canDoubleJump)
                 canDoubleJump = false;
@@ -69,7 +69,7 @@ public class Player : MonoBehaviour
                 hasJumped = true;
             }
         }
-        if (IsOnWall() && (wallOnLeft ? moveDirection.x > 0 : moveDirection.x < 0) && Input.GetButton("Jump") && canWallJump)
+        if (IsOnWall() && (wallOnLeft ? moveDirection.x > 0 : moveDirection.x < 0) && Input.GetButton("Jump") && canWallJump && !canJump)
         {
             Jump(0.75f);
             canDoubleJump = false;
