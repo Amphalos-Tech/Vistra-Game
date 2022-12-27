@@ -15,13 +15,10 @@ public class Player : MonoBehaviour
     public float dashSpeed;
     public float dashCooldown;
     private float dashCooldownCount;
-    private bool canDash => dashCooldownCount > 0;
 
     private Animator animator;
     private Rigidbody2D rb;
     private Vector2 moveDirection;
-    private bool hasJumped;
-    private bool isDashing;
     private bool wallOnLeft;
     [SerializeField] private bool canWallJump;
 
@@ -29,7 +26,6 @@ public class Player : MonoBehaviour
     void Start()
     {
         canDoubleJump = true;
-        isDashing = false;
         dashCooldownCount = 0;
         Physics.gravity = new Vector3(0, -9.8f, 0);
         rb = GetComponent<Rigidbody2D>();
@@ -41,7 +37,10 @@ public class Player : MonoBehaviour
         if (rb.velocity.y < 0)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeed - 1) * Time.deltaTime;
-            animator.SetBool("isFalling", true);
+            if (!animator.GetBool("isDashing"))
+                animator.SetBool("isFalling", true);
+            else
+                animator.SetBool("isFalling", false);
             animator.SetBool("isJumping", false);
         }
         else if (rb.velocity.y > 0)
@@ -51,32 +50,45 @@ public class Player : MonoBehaviour
         } else
             animator.SetBool("isFalling", false);
 
+        if (animator.GetBool("isWallGrabbed"))
+        {
+            animator.SetBool("isFalling", false);
+            animator.SetBool("Moving", false);
+        }
+
         IsOnGround();
         animator.SetBool("isgrounded", canJump);
-        animator.SetBool("isDashing", isDashing);
         moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
         if (Input.GetButtonDown("Jump"))
         {
             if (canJump)
                 canDoubleJump = true;
 
-            if ((canDoubleJump || canJump) && !IsOnWall())
+            if (canJump && !IsOnWall())
                 Jump(1f);
-            if (hasJumped && canDoubleJump)
-                canDoubleJump = false;
-            if (canDoubleJump && !canJump && Input.GetButtonUp("Jump"))
+            if (canDoubleJump && !canJump && !IsOnWall())
             {
-                hasJumped = true;
-            }
+                Jump(0.6f);
+                animator.SetTrigger("DoubleJump");
+                canDoubleJump=false;
+            } 
         }
+
         if (IsOnWall() && (wallOnLeft ? moveDirection.x > 0 : moveDirection.x < 0) && Input.GetButton("Jump") && canWallJump && !canJump)
         {
             Jump(0.75f);
             canDoubleJump = false;
             canWallJump = false;
         }
-        if (IsOnWall() && rb.velocity == Vector2.zero)
+
+        if (IsOnWall() && (rb.velocity.y >= -5f && rb.velocity.y <= 5f) && !canJump)
+        {
             canWallJump = true;
+            animator.SetBool("isWallGrabbed", true);
+        }
+        else
+            animator.SetBool("isWallGrabbed", false);
+
 
         if (dashCooldownCount > 0)
             dashCooldownCount -= Time.deltaTime;
@@ -84,7 +96,7 @@ public class Player : MonoBehaviour
         if(Input.GetButtonDown("Dash") && dashCooldownCount <= 0 && moveDirection.x != 0)
         {
             dashCooldownCount = dashCooldown;
-            isDashing = true;
+            animator.SetBool("isDashing", true);
         }
     }
 
@@ -110,7 +122,7 @@ public class Player : MonoBehaviour
         else
             animator.SetBool("Moving", false);
 
-        if (isDashing)
+        if (animator.GetBool("isDashing"))
         {
             StartCoroutine(Dash());
         }
@@ -120,14 +132,17 @@ public class Player : MonoBehaviour
     {
         if (divider == 1f)
             animator.SetBool("isJumping", true);
+        else
+            animator.SetBool("isWallGrabbed", false);
         rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y + jumpSpeed/divider);
     }
 
     public IEnumerator Dash()
     {
         rb.AddForce(new Vector2(dashSpeed * moveDirection.x * Time.deltaTime, 0), ForceMode2D.Impulse);
+        rb.velocity = new Vector2(rb.velocity.x, 0);
         yield return new WaitForSeconds(0.15f);
-        isDashing = false;
+        animator.SetBool("isDashing", false);
     }
 
     public void IsOnGround()
