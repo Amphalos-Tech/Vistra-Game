@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     public bool invincible;
     public LayerMask groundLayer;
     public LayerMask enemyLayer;
+    public float raycastFUnny;
 
     public float dashSpeed;
     public float dashCooldown;
@@ -46,7 +47,8 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (rb.velocity.y < 0)
+        Debug.Log(IsOnWall());
+        if (rb.velocity.y < 0 && !canJump)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeed - 1) * Time.deltaTime;
             if (!animator.GetBool("isDashing"))
@@ -198,7 +200,13 @@ public class Player : MonoBehaviour
 
     public void IsOnGround()
     {
-        canJump = Physics2D.BoxCast(GetComponent<CapsuleCollider2D>().bounds.center, GetComponent<CapsuleCollider2D>().bounds.size, 0f, Vector2.down, 0.25f, groundLayer);
+        canJump = Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.down, 0.25f, groundLayer);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+         Gizmos.DrawLine(transform.position, transform.position + Vector3.left * raycastFUnny);
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.right * raycastFUnny);
     }
 
     public bool IsOnWall()
@@ -206,9 +214,9 @@ public class Player : MonoBehaviour
         RaycastHit2D wall;
         if (!canJump)
         {
-            if (Physics2D.BoxCast(GetComponent<CapsuleCollider2D>().bounds.center, GetComponent<CapsuleCollider2D>().bounds.size, 0f, Vector2.right, 0.15f, groundLayer))
+            if (Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.right, 0.15f, groundLayer))
             {
-                wall = Physics2D.BoxCast(GetComponent<CapsuleCollider2D>().bounds.center, GetComponent<CapsuleCollider2D>().bounds.size, 0f, Vector2.right, 0.15f, groundLayer);
+                wall = Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.right, 0.15f, groundLayer);
                 if (wall.collider.gameObject.CompareTag("OneWayPlatform"))
                     return false;
                 else
@@ -217,9 +225,9 @@ public class Player : MonoBehaviour
                     return true;
                 }
             }
-            else if (Physics2D.BoxCast(GetComponent<CapsuleCollider2D>().bounds.center, GetComponent<CapsuleCollider2D>().bounds.size, 0f, Vector2.left, 0.15f, groundLayer))
+            else if (Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.left, 0.15f, groundLayer))
             {
-                wall = Physics2D.BoxCast(GetComponent<CapsuleCollider2D>().bounds.center, GetComponent<CapsuleCollider2D>().bounds.size, 0f, Vector2.left, 0.15f, groundLayer);
+                wall = Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.left, 0.15f, groundLayer);
                 if (wall.collider.gameObject.gameObject.CompareTag("OneWayPlatform"))
                     return false;
                 else
