@@ -1,4 +1,5 @@
 using SaveSystem;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -25,8 +26,15 @@ public static class SaveHandler
         save = SaveSystem.SaveSystem.Read();
     }
 
-    public static void CreateSave() //TODO
+    public static void CreateSave(SaveFile.GameStage stage) //stage represents stage reached, aka stage to start on upon continue
     {
-        SaveSystem.SaveSystem.Write(save);
+        var s = new SaveFile();
+        var settings = new byte[5];
+        Settings.Instance.Volumes.CopyTo(settings, 0);
+        settings[4] = (byte)Settings.Instance.Quality;
+        s.Settings = settings;
+        //UNCOMMENT ONCE MERGED: s.Upgrades = Player.upgrades;
+        s.Stage = stage;
+        SaveSystem.SaveSystem.Write(s);
     }
 }
