@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
     private bool wallOnLeft;
     private bool canWallJump;
     private GameObject oneWayPlatform;
-    private static byte[] upgrades;
+    public static byte[] upgrades;
     private static bool loadedUpgrades = false;
 
     // Start is called before the first frame update
