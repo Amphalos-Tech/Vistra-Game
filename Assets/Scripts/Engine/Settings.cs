@@ -21,8 +21,8 @@ public class Settings : MonoBehaviour
         else
         {
             SaveHandler.LoadSave();
-            //Volumes = SaveHandler.Volumes;
-            //Quality = SaveHandler.Quality;
+            Volumes = SaveHandler.Volumes;
+            Quality = SaveHandler.Quality;
             Instance = this;
         }
     }

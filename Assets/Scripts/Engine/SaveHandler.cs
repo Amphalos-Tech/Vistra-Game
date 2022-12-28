@@ -6,7 +6,7 @@ public static class SaveHandler
 {
     private static SaveFile save;
 
-    public static byte[] Volumes => save.Settings[0..3];
+    public static byte[] Volumes => save.Settings[0..4]; //0 inclusive to 4 exclusive
 
     public static SaveFile.GameStage Stage => save.Stage;
 
