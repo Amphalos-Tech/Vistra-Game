@@ -8,7 +8,9 @@ public class Player : MonoBehaviour
     public float jumpSpeed;
     public float fallSpeed;
     public float lowFall;
+    public bool invincible;
     public LayerMask groundLayer;
+    public LayerMask enemyLayer;
 
     public float dashSpeed;
     public float dashCooldown;
@@ -22,6 +24,8 @@ public class Player : MonoBehaviour
     private bool wallOnLeft;
     private bool canWallJump;
     private GameObject oneWayPlatform;
+    private static byte[] upgrades;
+    private static bool loadedUpgrades = false;
 
     // Start is called before the first frame update
     void Start()
@@ -30,7 +34,13 @@ public class Player : MonoBehaviour
         dashCooldownCount = 0;
         Physics.gravity = new Vector3(0, -9.8f, 0);
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();  
+        animator = GetComponent<Animator>(); 
+        
+        if(!loadedUpgrades)
+        {
+            upgrades = SaveHandler.Upgrades;
+            loadedUpgrades = true;
+        }
     }
     // Update is called once per frame
     void Update()
@@ -97,6 +107,7 @@ public class Player : MonoBehaviour
         if(Input.GetButtonDown("Dash") && dashCooldownCount <= 0 && moveDirection.x != 0)
         {
             dashCooldownCount = dashCooldown;
+            invincible = true;
             animator.SetBool("isDashing", true);
         }
 
@@ -136,12 +147,16 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("OneWayPlatform"))
             oneWayPlatform = collision.gameObject;
+        if (collision.gameObject.layer == enemyLayer)
+            Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), collision.collider);
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
         if(collision.gameObject.CompareTag("OneWayPlatform"))
             oneWayPlatform = null;
+        if (collision.gameObject.layer == enemyLayer)
+            Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), collision.collider, false);
     }
 
     public IEnumerator FallThrough()
@@ -166,10 +181,15 @@ public class Player : MonoBehaviour
 
     public IEnumerator Dash()
     {
+        Physics2D.IgnoreLayerCollision(6, 7, true);
         rb.AddForce(new Vector2(dashSpeed * moveDirection.x * Time.deltaTime, 0), ForceMode2D.Impulse);
         rb.velocity = new Vector2(rb.velocity.x, 0);
+
         yield return new WaitForSeconds(0.15f);
+
         animator.SetBool("isDashing", false);
+        Physics2D.IgnoreLayerCollision(6, 7, false);
+        invincible = false;
     }
 
     public void IsOnGround()

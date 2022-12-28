@@ -22,11 +22,6 @@ public class Enemy : MonoBehaviour
         StartCoroutine(FieldOfView(delay));
     }
 
-    private void Update()
-    {
-        Debug.Log(canSeePlayer);
-    }
-
     public IEnumerator FieldOfView(float delay)
     {
         WaitForSeconds delaySeconds = new WaitForSeconds(delay);
@@ -53,12 +48,13 @@ public class Enemy : MonoBehaviour
                 float distance = Vector2.Distance(transform.position, playerpos);
 
                 if (Physics2D.Raycast(transform.position, direction, distance, obstruction))
-                    canSeePlayer = true;
-                else
                     canSeePlayer = false;
+                else
+                    canSeePlayer = true;
             }
             else
                 canSeePlayer = false;
-        }
+        } else
+            canSeePlayer = false;
     }
 }
