@@ -1,18 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SpeakerBox : MonoBehaviour
 {
-    // Start is called before the first frame update
+    private Image speakerImage;
+
+    [SerializeField]
+    private GameObject speakerObject;
+
+    private Text speakerNametag;
+
+    private string _speaker;
+    public string Speaker
+    {
+        get =>  _speaker;
+        set 
+        { 
+            _speaker = value;
+            SetSpeaker();
+        }
+    }
     void Start()
     {
-        
+        speakerImage = GetComponentInChildren<Image>();
+        speakerNametag = speakerObject.GetComponentInChildren<Text>();        
     }
 
-    // Update is called once per frame
-    void Update()
+    void SetSpeaker()
     {
-        
+        speakerNametag.text = _speaker;
+        //TODO once assets made: speakerImage = 
     }
 }
