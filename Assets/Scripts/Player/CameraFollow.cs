@@ -16,5 +16,8 @@ public class CameraFollow : MonoBehaviour
     {
         Vector2 pos = player.transform.position;
         transform.position = new Vector3(pos.x, pos.y, transform.position.z);
+
+        if(!player.activeSelf)
+            player = GameObject.FindGameObjectWithTag("Player");
     }
 }

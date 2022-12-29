@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -12,7 +13,7 @@ public class Player : MonoBehaviour
     public bool invincible;
     public LayerMask groundLayer;
     public LayerMask enemyLayer;
-    public float raycastFUnny;
+    public bool meleeMC;
 
     public float dashSpeed;
     public float dashCooldown;
@@ -25,7 +26,7 @@ public class Player : MonoBehaviour
     private bool canDoubleJump;
     private bool wallOnLeft;
     private bool canWallJump;
-    private GameObject oneWayPlatform;
+    private GameObject otherPlayer;
     private static byte[] upgrades;
     private static bool loadedUpgrades = false;
 
@@ -37,31 +38,59 @@ public class Player : MonoBehaviour
         Physics.gravity = new Vector3(0, -9.8f, 0);
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>(); 
-        
+        if(!meleeMC)
+            gameObject.SetActive(false);
+
+
         if(!loadedUpgrades)
         {
             //upgrades = SaveHandler.Upgrades;
             loadedUpgrades = true;
         }
     }
+
+    IEnumerator Disable()
+    {
+        yield return new WaitForSeconds(0.1f);
+        if (!meleeMC)
+            gameObject.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        List<GameObject> players = GameObject.FindGameObjectsWithTag("Player").ToList();
+        players.Remove(gameObject);
+
+        otherPlayer = players[0];
+
+        if(meleeMC)
+            Cursor.lockState = CursorLockMode.Locked;
+        else
+            Cursor.lockState = CursorLockMode.None;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(IsOnWall());
         if (rb.velocity.y < 0 && !canJump)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeed - 1) * Time.deltaTime;
             if (!animator.GetBool("isDashing"))
                 animator.SetBool("isFalling", true);
             else
-            animator.SetBool("isJumping", false);
+                animator.SetBool("isJumping", false);
         }
         else if (rb.velocity.y > 0)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (lowFall - 1) * Time.deltaTime;
             animator.SetBool("isFalling", false);
-        } else
+        }
+        else
+        {
             animator.SetBool("isFalling", false);
+            if (animator.GetBool("isJumping"))
+                animator.SetBool("isJumping", false);
+        }
 
         if (animator.GetBool("isWallGrabbed"))
         {
@@ -109,15 +138,15 @@ public class Player : MonoBehaviour
         if (dashCooldownCount > 0)
             dashCooldownCount -= Time.deltaTime;
 
-        if(Input.GetButtonDown("Dash") && dashCooldownCount <= 0 && moveDirection.x != 0)
+        if (Input.GetButtonDown("Dash") && dashCooldownCount <= 0 && moveDirection.x != 0)
         {
             dashCooldownCount = dashCooldown;
             invincible = true;
             animator.SetBool("isDashing", true);
         }
 
-        if (Input.GetAxis("Vertical") < 0 && oneWayPlatform != null)
-            StartCoroutine(FallThrough());
+        if (Input.GetButtonDown("Swap") && !invincible)
+            Swap();
     }
 
     void FixedUpdate()
@@ -148,34 +177,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("OneWayPlatform"))
-            oneWayPlatform = collision.gameObject;
-        if (collision.gameObject.layer == enemyLayer)
-            Physics2D.IgnoreCollision(GetComponent<CapsuleCollider2D>(), collision.collider);
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if(collision.gameObject.CompareTag("OneWayPlatform"))
-            oneWayPlatform = null;
-        if (collision.gameObject.layer == enemyLayer)
-            Physics2D.IgnoreCollision(GetComponent<CapsuleCollider2D>(), collision.collider, false);
-    }
-
-    public IEnumerator FallThrough()
-    {
-        TilemapCollider2D platformCollider = oneWayPlatform.GetComponent<TilemapCollider2D>();
-        CapsuleCollider2D playerCollider = GetComponent<CapsuleCollider2D>();
-
-        Physics2D.IgnoreCollision(platformCollider, playerCollider);
-
-        yield return new WaitForSeconds(0.5f);
-        if(!playerCollider.IsTouching(platformCollider))
-            Physics2D.IgnoreCollision(platformCollider, playerCollider, false);
-    }
-
     public void Jump(float divider)
     {
         if (divider == 1f)
@@ -201,12 +202,6 @@ public class Player : MonoBehaviour
     public void IsOnGround()
     {
         canJump = Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.down, 0.25f, groundLayer);
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-         Gizmos.DrawLine(transform.position, transform.position + Vector3.left * raycastFUnny);
-        Gizmos.DrawLine(transform.position, transform.position + Vector3.right * raycastFUnny);
     }
 
     public bool IsOnWall()
@@ -238,5 +233,13 @@ public class Player : MonoBehaviour
             }
         }
         return false;
+    }
+
+    void Swap()
+    {
+        otherPlayer.transform.position = transform.position;
+        otherPlayer.transform.rotation = transform.rotation;
+        otherPlayer.SetActive(true);
+        gameObject.SetActive(false);
     }
 }

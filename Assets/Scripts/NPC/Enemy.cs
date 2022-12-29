@@ -8,19 +8,21 @@ public class Enemy : MonoBehaviour
     public float radius;
     public float delay;
 
-    protected Vector2 playerpos;
-    protected Player playerClass;
+    protected GameObject player;
+    protected Vector2 direction;
     protected bool canSeePlayer;
 
     public LayerMask playerLayer;
     public LayerMask obstruction;
+
+    private GameObject[] players;
     // Start is called before the first frame update
-    void Start()
+    protected void Exist()
     {
-        playerpos = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>().position;
-        playerClass = GameObject.FindGameObjectWithTag("Player").GetComponent<Player>();
+        player = GameObject.FindWithTag("Player");
         StartCoroutine(FieldOfView(delay));
     }
+
 
     public IEnumerator FieldOfView(float delay)
     {
@@ -29,6 +31,8 @@ public class Enemy : MonoBehaviour
         while(true)
         {
             yield return delaySeconds;
+            if (!player.activeSelf)
+                player = GameObject.FindWithTag("Player");
             CheckPosition();
         }
     }
@@ -42,10 +46,10 @@ public class Enemy : MonoBehaviour
         Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, radius, playerLayer);
         if(rangeObj != null)
         {
-            Vector2 direction = new Vector2(playerpos.x - transform.position.x, playerpos.y - transform.position.y).normalized;
+            direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
             if(Vector2.Angle(transform.position, direction) < angle/2)
             {
-                float distance = Vector2.Distance(transform.position, playerpos);
+                float distance = Vector2.Distance(transform.position, player.transform.position);
 
                 if (Physics2D.Raycast(transform.position, direction, distance, obstruction))
                     canSeePlayer = false;
