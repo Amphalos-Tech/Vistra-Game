@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class Player : MonoBehaviour
 {
@@ -11,9 +13,13 @@ public class Player : MonoBehaviour
     public bool invincible;
     public LayerMask groundLayer;
     public LayerMask enemyLayer;
-
+    public LayerMask platformLayer;
+    public bool meleeMC;
     public float dashSpeed;
     public float dashCooldown;
+    public GameObject swapParticles;
+    public GameObject swapParticles2;
+
     private float dashCooldownCount;
 
     private Animator animator;
@@ -23,7 +29,7 @@ public class Player : MonoBehaviour
     private bool canDoubleJump;
     private bool wallOnLeft;
     private bool canWallJump;
-    private GameObject oneWayPlatform;
+    private GameObject otherPlayer;
     public static byte[] upgrades;
     private static bool loadedUpgrades = false;
 
@@ -33,33 +39,62 @@ public class Player : MonoBehaviour
         canDoubleJump = true;
         dashCooldownCount = 0;
         Physics.gravity = new Vector3(0, -9.8f, 0);
+        Physics2D.IgnoreLayerCollision(gameObject.layer, 8);
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>(); 
-        
+        if(!meleeMC)
+            gameObject.SetActive(false);
+
+
         if(!loadedUpgrades)
         {
             upgrades = SaveHandler.Upgrades;
             loadedUpgrades = true;
         }
     }
+
+    IEnumerator Disable()
+    {
+        yield return new WaitForSeconds(0.1f);
+        if (!meleeMC)
+            gameObject.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        List<GameObject> players = GameObject.FindGameObjectsWithTag("Player").ToList();
+        players.Remove(gameObject);
+
+        otherPlayer = players[0];
+
+        if(meleeMC)
+            Cursor.lockState = CursorLockMode.Locked;
+        else
+            Cursor.lockState = CursorLockMode.None;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        if (rb.velocity.y < 0)
+        if (rb.velocity.y < 0 && !canJump)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeed - 1) * Time.deltaTime;
             if (!animator.GetBool("isDashing"))
                 animator.SetBool("isFalling", true);
             else
-                animator.SetBool("isFalling", false);
-            animator.SetBool("isJumping", false);
+                animator.SetBool("isJumping", false);
         }
         else if (rb.velocity.y > 0)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (lowFall - 1) * Time.deltaTime;
             animator.SetBool("isFalling", false);
-        } else
+        }
+        else
+        {
             animator.SetBool("isFalling", false);
+            if (animator.GetBool("isJumping"))
+                animator.SetBool("isJumping", false);
+        }
 
         if (animator.GetBool("isWallGrabbed"))
         {
@@ -67,7 +102,7 @@ public class Player : MonoBehaviour
             animator.SetBool("Moving", false);
         }
 
-        IsOnGround();
+        //IsOnGround();
         animator.SetBool("isgrounded", canJump);
         moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
         if (Input.GetButtonDown("Jump"))
@@ -79,7 +114,10 @@ public class Player : MonoBehaviour
                 Jump(1f);
             if (canDoubleJump && !canJump && !IsOnWall())
             {
-                Jump(0.6f);
+                if(animator.GetBool("isFalling"))
+                    Jump(0.6f);
+                else
+                    Jump(1f);
                 animator.SetTrigger("DoubleJump");
                 canDoubleJump=false;
             } 
@@ -104,15 +142,15 @@ public class Player : MonoBehaviour
         if (dashCooldownCount > 0)
             dashCooldownCount -= Time.deltaTime;
 
-        if(Input.GetButtonDown("Dash") && dashCooldownCount <= 0 && moveDirection.x != 0)
+        if (Input.GetButtonDown("Dash") && dashCooldownCount <= 0 && moveDirection.x != 0)
         {
             dashCooldownCount = dashCooldown;
             invincible = true;
             animator.SetBool("isDashing", true);
         }
 
-        if (Input.GetAxis("Vertical") < 0 && oneWayPlatform != null)
-            StartCoroutine(FallThrough());
+        if (Input.GetButtonDown("Swap") && !invincible)
+            Swap();
     }
 
     void FixedUpdate()
@@ -143,33 +181,6 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("OneWayPlatform"))
-            oneWayPlatform = collision.gameObject;
-        if (collision.gameObject.layer == enemyLayer)
-            Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), collision.collider);
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if(collision.gameObject.CompareTag("OneWayPlatform"))
-            oneWayPlatform = null;
-        if (collision.gameObject.layer == enemyLayer)
-            Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), collision.collider, false);
-    }
-
-    public IEnumerator FallThrough()
-    {
-        BoxCollider2D platformCollider = oneWayPlatform.GetComponent<BoxCollider2D>();
-        BoxCollider2D playerCollider = GetComponent<BoxCollider2D>();
-
-        Physics2D.IgnoreCollision(platformCollider, playerCollider);
-
-        yield return new WaitForSeconds(0.5f);
-        Physics2D.IgnoreCollision(platformCollider, playerCollider, false);
-    }
-
     public void Jump(float divider)
     {
         if (divider == 1f)
@@ -192,9 +203,31 @@ public class Player : MonoBehaviour
         invincible = false;
     }
 
-    public void IsOnGround()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        canJump = Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.down, 0.1f, groundLayer);
+        if (collision.gameObject.CompareTag("Ground"))
+            canJump = true;
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("OneWayPlatform"))
+        {
+            Physics2D.IgnoreLayerCollision(gameObject.layer, 8, false);
+            canJump = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+            canJump = false;
+        else if(collision.gameObject.CompareTag("OneWayPlatform"))
+        {
+            canJump = false;
+            Physics2D.IgnoreLayerCollision(gameObject.layer, 8  );
+        }
+
     }
 
     public bool IsOnWall()
@@ -226,5 +259,15 @@ public class Player : MonoBehaviour
             }
         }
         return false;
+    }
+
+    void Swap()
+    {
+        otherPlayer.transform.position = transform.position;
+        otherPlayer.transform.rotation = transform.rotation;
+        Instantiate(swapParticles, otherPlayer.transform.position, new Quaternion(1f, 0, 0, 0f));
+        Instantiate(swapParticles2, otherPlayer.transform.position, new Quaternion(1f, 0, 0, 0f));
+        otherPlayer.SetActive(true);
+        gameObject.SetActive(false);
     }
 }
