@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using SaveSystem;
+using VistraFileSystem;
 using UnityEngine.SceneManagement;
 
 public class MainButton : MonoBehaviour, IPointerClickHandler
@@ -14,7 +14,7 @@ public class MainButton : MonoBehaviour, IPointerClickHandler
             GetComponent<Text>().text = "Continue";
         }
     }
-    public void OnPointerClick(PointerEventData data)
+    public void OnPointerClick(PointerEventData data) //CHANGE TO LOADING DIALOGUE BEFORE ONCE IMPLEMENTED
     {
         switch(SaveHandler.Stage)
         {
