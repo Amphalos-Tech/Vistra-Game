@@ -15,5 +15,5 @@ public class MainButton : MonoBehaviour, IPointerClickHandler
             GetComponent<Text>().text = "Continue";
         }
     }
-    public void OnPointerClick(PointerEventData data) => SceneManager.LoadScene($"{SaveHandler.Stage.ToString()}Dialogue");
+    public void OnPointerClick(PointerEventData data) => SceneManager.LoadScene($"{SaveHandler.Stage}Dialogue");
 }

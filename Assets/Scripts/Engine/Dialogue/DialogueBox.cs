@@ -29,21 +29,17 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
     // Start is called before the first frame update
     void Start()
     {
+        textbox = GetComponentInChildren<Text>();
         textbox.fontSize = CorrespondingFontSize(Settings.Instance.Size);
         delay = CorrespondingDelay(Settings.Instance.Speed);
-        textbox = GetComponentInChildren<Text>();
         DialogueHandler.LoadLines();
+        DisplayNextBlock();
     }
 
     void AnimateText()
     {
-        if (_text != null)
-        {
-            StartCoroutine(Animate());
-            animating = true;
-        }
-        else
-            SceneManager.LoadScene(SaveHandler.Stage.ToString());
+        StartCoroutine(Animate());
+        animating = true;
     }
 
     IEnumerator Animate()
@@ -53,6 +49,7 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
             textbox.text += _text[i];
             yield return new WaitForSeconds(delay);
         }
+        animating = false;
     }
 
     void Update()
@@ -67,10 +64,7 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
             }
             else
             {
-                textbox.text = "";
-                var block = DialogueHandler.GetNextDialogueBlock();
-                Text = block.Words;
-                speakerBox.Speaker = block.Speaker;
+               DisplayNextBlock();
             }
         }
     }
@@ -107,5 +101,17 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
                 Debug.Log("An error occured loading text speed into dialogue");
                 return Time.deltaTime * 3;
         }
+    }
+
+    void DisplayNextBlock()
+    {
+        var block = DialogueHandler.GetNextDialogueBlock();
+        if (block != null)
+        {
+            textbox.text = "";
+            Text = block.Words;
+            speakerBox.Speaker = block.Speaker;
+        }
+        else SceneManager.LoadScene(SaveHandler.Stage.ToString());
     }
 }

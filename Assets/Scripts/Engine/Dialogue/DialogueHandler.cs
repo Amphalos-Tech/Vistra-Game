@@ -25,7 +25,7 @@ public static class DialogueHandler
     {
         if (position < dialogueBlocks.Count)
         {
-            return dialogueBlocks[position];
+            return dialogueBlocks[position++];
         }
         else
         {

@@ -194,7 +194,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Gamer
+  m_Text: 
 --- !u!222 &127306664
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -372,7 +372,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfd1ee058ffd55646b7b03d919de159b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speakerBox: {fileID: 0}
+  speakerBox: {fileID: 1884380426}
 --- !u!1 &1138179322
 GameObject:
   m_ObjectHideFlags: 0
@@ -881,7 +881,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a23e6abb2a8fb24685f166b483814d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speakerObject: {fileID: 527548941}
+  speakerObject: {fileID: 127306661}
 --- !u!1 &1925465615
 GameObject:
   m_ObjectHideFlags: 0
