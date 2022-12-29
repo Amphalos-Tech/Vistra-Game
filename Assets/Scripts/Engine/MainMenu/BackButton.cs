@@ -14,5 +14,6 @@ public class BackButton : MonoBehaviour, IPointerClickHandler
     {
         main.SetActive(true);
         settings.SetActive(false);
+        SaveHandler.CreateSave(SaveHandler.Stage);
     }
 }
