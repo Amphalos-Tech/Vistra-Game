@@ -6,6 +6,7 @@ public class Enemy : MonoBehaviour
 {
     public float angle;
     public float radius;
+    public float height;
     public float delay;
 
     protected GameObject player;
@@ -39,12 +40,14 @@ public class Enemy : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(transform.position, radius);
+        Gizmos.DrawLine(new Vector2(transform.position.x+2, transform.position.y), new Vector2(transform.position.x + 2, transform.position.y + height));
+        Gizmos.DrawLine(new Vector2(transform.position.x + 2, transform.position.y), new Vector2(transform.position.x + 2, transform.position.y - height));
     }
 
     private void CheckPosition()
     {
         Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, radius, playerLayer);
-        if(rangeObj != null)
+        if(rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= height)
         {
             direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
             if(Vector2.Angle(transform.position, direction) < angle/2)

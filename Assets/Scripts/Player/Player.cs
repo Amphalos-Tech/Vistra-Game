@@ -13,10 +13,13 @@ public class Player : MonoBehaviour
     public bool invincible;
     public LayerMask groundLayer;
     public LayerMask enemyLayer;
+    public LayerMask platformLayer;
     public bool meleeMC;
-
     public float dashSpeed;
     public float dashCooldown;
+    public GameObject swapParticles;
+    public GameObject swapParticles2;
+
     private float dashCooldownCount;
 
     private Animator animator;
@@ -27,7 +30,7 @@ public class Player : MonoBehaviour
     private bool wallOnLeft;
     private bool canWallJump;
     private GameObject otherPlayer;
-    private static byte[] upgrades;
+    public static byte[] upgrades;
     private static bool loadedUpgrades = false;
 
     // Start is called before the first frame update
@@ -36,6 +39,7 @@ public class Player : MonoBehaviour
         canDoubleJump = true;
         dashCooldownCount = 0;
         Physics.gravity = new Vector3(0, -9.8f, 0);
+        Physics2D.IgnoreLayerCollision(gameObject.layer, 8);
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>(); 
         if(!meleeMC)
@@ -44,7 +48,7 @@ public class Player : MonoBehaviour
 
         if(!loadedUpgrades)
         {
-            //upgrades = SaveHandler.Upgrades;
+            upgrades = SaveHandler.Upgrades;
             loadedUpgrades = true;
         }
     }
@@ -98,7 +102,7 @@ public class Player : MonoBehaviour
             animator.SetBool("Moving", false);
         }
 
-        IsOnGround();
+        //IsOnGround();
         animator.SetBool("isgrounded", canJump);
         moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
         if (Input.GetButtonDown("Jump"))
@@ -199,9 +203,31 @@ public class Player : MonoBehaviour
         invincible = false;
     }
 
-    public void IsOnGround()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        canJump = Physics2D.BoxCast(GetComponent<BoxCollider2D>().bounds.center, GetComponent<BoxCollider2D>().bounds.size, 0f, Vector2.down, 0.25f, groundLayer);
+        if (collision.gameObject.CompareTag("Ground"))
+            canJump = true;
+    }
+
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("OneWayPlatform"))
+        {
+            Physics2D.IgnoreLayerCollision(gameObject.layer, 8, false);
+            canJump = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+            canJump = false;
+        else if(collision.gameObject.CompareTag("OneWayPlatform"))
+        {
+            canJump = false;
+            Physics2D.IgnoreLayerCollision(gameObject.layer, 8  );
+        }
+
     }
 
     public bool IsOnWall()
@@ -239,6 +265,8 @@ public class Player : MonoBehaviour
     {
         otherPlayer.transform.position = transform.position;
         otherPlayer.transform.rotation = transform.rotation;
+        Instantiate(swapParticles, otherPlayer.transform.position, new Quaternion(1f, 0, 0, 0f));
+        Instantiate(swapParticles2, otherPlayer.transform.position, new Quaternion(1f, 0, 0, 0f));
         otherPlayer.SetActive(true);
         gameObject.SetActive(false);
     }
