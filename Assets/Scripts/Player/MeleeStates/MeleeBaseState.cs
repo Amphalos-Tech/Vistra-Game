@@ -12,6 +12,7 @@ public class MeleeBaseState : State
 
     public override void OnEnter(StateMachine machine)
     {
+        shouldCombo = false;
         base.OnEnter(machine);
         animator = machine.GetComponent<Animator>();
     }
@@ -19,8 +20,7 @@ public class MeleeBaseState : State
     public override void OnUpdate()
     {
         base.OnUpdate();
-
-      if(Input.GetButtonDown("Attack"))
+      if(Input.GetButtonDown("Attack") && fixedtime > 0.1d)
             shouldCombo = true;
     }
 

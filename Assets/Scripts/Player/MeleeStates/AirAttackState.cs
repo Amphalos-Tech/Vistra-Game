@@ -4,15 +4,28 @@ using UnityEngine;
 
 public class AirAttackState : MeleeBaseState
 {
-    // Start is called before the first frame update
-    void Start()
+    public override void OnEnter(StateMachine stateMachine)
     {
-        
+        base.OnEnter(stateMachine);
+
+        attackIndex = 5;
+        duration = 0.3f;
+        fixedtime = 0f;
+        animator.SetTrigger("Attack " + attackIndex);
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void OnUpdate()
     {
-        
+        base.OnUpdate();
+
+        if (fixedtime > duration)
+        {
+            machine.SetNextStateToMain();
+        }
+    }
+
+    public override void OnExit()
+    {
+        base.OnExit();
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,8 @@ public class Enemy : MonoBehaviour
     public float radius;
     public float height;
     public float delay;
+    public float maxHealth;
+    [SerializeField] protected float health;
 
     protected GameObject player;
     protected Vector2 direction;
@@ -21,6 +24,7 @@ public class Enemy : MonoBehaviour
     protected void Exist()
     {
         player = GameObject.FindWithTag("Player");
+        health = maxHealth;
         StartCoroutine(FieldOfView(delay));
     }
 
@@ -37,7 +41,7 @@ public class Enemy : MonoBehaviour
             CheckPosition();
         }
     }
-    protected void OnDrawGizmosSelected()
+    protected virtual void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(transform.position, radius);
         Gizmos.DrawLine(new Vector2(transform.position.x+2, transform.position.y), new Vector2(transform.position.x + 2, transform.position.y + height));
@@ -63,5 +67,10 @@ public class Enemy : MonoBehaviour
                 canSeePlayer = false;
         } else
             canSeePlayer = false;
+    }
+
+    public virtual void Hit(float damage, Vector2 d)
+    {
+        health -= damage;
     }
 }

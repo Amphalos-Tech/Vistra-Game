@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class StateMachine : MonoBehaviour
 {
-    public string name;
+    public string nameCustom;
     public State CurrentState;
     public Player player;
 
     void Start()
     {
         player = GetComponent<Player>();
-        if (name == "MeleeMC")
+        if (nameCustom == "MeleeMC")
             CurrentState = (State) new Idle();
         if (CurrentState != null)
             CurrentState.OnEnter(this);

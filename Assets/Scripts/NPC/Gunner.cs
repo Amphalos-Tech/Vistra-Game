@@ -78,9 +78,10 @@ public class Gunner : Enemy
         attacking = false;
     }
 
-    private void OnDrawGizmosSelected()
+    protected override void OnDrawGizmosSelected()
     {
         base.OnDrawGizmosSelected();
+
         Gizmos.DrawWireSphere(transform.position, range);
         Gizmos.DrawLine(new Vector2(transform.position.x + 5, transform.position.y), new Vector2(transform.position.x + 5, transform.position.y + rangeHeight));
         Gizmos.DrawLine(new Vector2(transform.position.x + 5, transform.position.y), new Vector2(transform.position.x + 5, transform.position.y - rangeHeight));

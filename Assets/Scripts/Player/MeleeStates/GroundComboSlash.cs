@@ -9,9 +9,8 @@ public class GroundComboSlash : MeleeBaseState
         base.OnEnter(stateMachine);
 
         attackIndex = 3;
-        duration = 0.4375f;
+        duration = 0.7f;
         animator.SetTrigger("Attack " + attackIndex);
-        Debug.Log("Attack " + attackIndex);
     }
 
     public override void OnUpdate()
@@ -29,5 +28,7 @@ public class GroundComboSlash : MeleeBaseState
     public override void OnExit()
     {
         base.OnExit();
+
+        machine.player.animator.SetBool("isDashing", false);
     }
 }

@@ -9,9 +9,8 @@ public class GroundComboSpin : MeleeBaseState
         base.OnEnter(stateMachine);
 
         attackIndex = 2;
-        duration = 0.5f;
+        duration = 0.6f;
         animator.SetTrigger("Attack " + attackIndex);
-        Debug.Log("Attack " + attackIndex);
     }
 
     public override void OnUpdate()

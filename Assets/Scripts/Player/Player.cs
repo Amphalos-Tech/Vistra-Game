@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,11 @@ public class Player : MonoBehaviour
     private GameObject otherPlayer;
     public static byte[] upgrades;
     private static bool loadedUpgrades = false;
+
+    private bool attack1;
+    private bool attack2;
+    private bool attack3;
+    private bool attack4;
 
     // Start is called before the first frame update
     void Start()
@@ -114,7 +120,7 @@ public class Player : MonoBehaviour
         //IsOnGround();
         animator.SetBool("isgrounded", canJump);
         moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && !hit)
         {
             if (canJump)
                 canDoubleJump = true;
@@ -163,8 +169,23 @@ public class Player : MonoBehaviour
         if (Input.GetButtonDown("Swap") && !invincible)
             Swap();
 
-        if (Input.GetButtonDown("Attack") && machine.CurrentState.GetType() == typeof(Idle))
+        if (Input.GetButtonDown("Attack") && meleeMC && machine.CurrentState.GetType() == typeof(Idle) && !animator.GetBool("isDashing"))
             machine.SetNextState(new MeleeEntryState());
+        else if(Input.GetButtonDown("Attack") && !meleeMC && !animator.GetBool("isDashing"))
+                Ranged();
+
+        if (attack1)
+        {
+            Attack1(1);
+        } else if(attack2) {
+            Attack2(1);
+        } else if(attack3)
+        {
+            Attack3(3);
+        } else if(attack4)
+        {
+            Attack4(4);
+        }
     }
 
     void FixedUpdate()
@@ -310,19 +331,152 @@ public class Player : MonoBehaviour
         if(!invincible)
         {
             health -= damage;
+            machine.SetNextState(new Idle());
             StartCoroutine(Stopper(Mathf.Clamp(iframes, 0, 0.5f)));
             if(Mathf.Abs(transform.position.x - enemypos.x) < 2f)
-                rb.velocity = new Vector2(rb.velocity.x + direction.x * knockback * 3, rb.velocity.y + jumpSpeed / 2);
+                rb.velocity = new Vector2( direction.x * knockback * 3, rb.velocity.y + jumpSpeed / 2);
             else
-                rb.velocity = new Vector2(rb.velocity.x + direction.x * knockback, rb.velocity.y + jumpSpeed/2);
-            Debug.Log(direction);
+                rb.velocity = new Vector2( direction.x * knockback, rb.velocity.y + jumpSpeed/2);
             StartCoroutine(Invincibility(iframes));
         }
     }
 
-    IEnumerator Stopper(float time)
+    public void Attack1(float damage)
+    {
+        Vector2 position = new Vector2(2.13f, -0.045f);
+        Vector2 size = new Vector2(4, 4);
+        Vector2 direction;
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+            direction = Vector2.right;
+        else
+        {
+            direction = Vector2.left;
+            position.x *= -1;
+        }
+
+
+
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        if(enemy)
+        {
+            attack1 = false;
+            GameObject hitEnemy = enemy.collider.gameObject;
+            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+        }
+    }
+
+    public void Attack2(float damage)
+    {
+        Vector2 position = new Vector2(2.6f, -0.55f);
+        Vector2 size = new Vector2(4, 3);
+        Vector2 direction;
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+            direction = Vector2.right;
+        else
+        {
+            direction = Vector2.left;
+            position.x *= -1;
+        }
+
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        if (enemy)
+        {
+            attack2 = false;
+            GameObject hitEnemy = enemy.collider.gameObject;
+            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+        }
+    }
+
+    public void Attack3(float damage)
+    {
+        Vector2 position = new Vector2(4.3f, -0.15f);
+        Vector2 size = new Vector2(4, 3);
+        Vector2 direction;
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+            direction = Vector2.right;
+        else
+        {
+            direction = Vector2.left;
+            position.x *= -1;
+        }
+
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        if (enemy)
+        {
+            attack3 = false;
+            GameObject hitEnemy = enemy.collider.gameObject;
+            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+        }
+    }
+
+    public void Attack4(float damage)
+    {
+        Vector2 position = new Vector2(4.3f, 1.12f);
+        Vector2 size = new Vector2(4, 8);
+        Vector2 direction;
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+            direction = Vector2.right;
+        else
+        {
+            direction = Vector2.left;
+            position.x *= -1;
+        }
+
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        if (enemy)
+        {
+            attack4 = false;
+            GameObject hitEnemy = enemy.collider.gameObject;
+            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+        }
+    }
+
+    public void Enable1()
+    {
+        attack1 = true;
+    }
+
+    public void Disable1()
+    {
+        attack1 = false;
+    }
+    public void Enable2()
+    {
+        attack2 = true;
+    }
+
+    public void Disable2()
+    {
+        attack2 = false;
+    }
+
+    public void Enable3()
+    {
+        attack3 = true;
+    }
+
+    public void Disable3()
+    {
+        attack3 = false;
+    }
+    public void Enable4()
+    {
+        attack4 = true;
+    }
+
+    public void Disable4()
+    {
+        attack4 = false;
+    }
+
+    public IEnumerator Stopper(float time)
     {
         hit = true;
+        rb.velocity = Vector2.zero;
         yield return new WaitForSeconds(time);
         hit = false;
     }
@@ -332,5 +486,10 @@ public class Player : MonoBehaviour
         invincible = true;
         yield return new WaitForSeconds(iframes);
         invincible = false;
+    }
+
+    public void Ranged()
+    {
+
     }
 }

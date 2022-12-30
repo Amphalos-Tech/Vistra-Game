@@ -9,18 +9,16 @@ public class GroundEntryState : MeleeBaseState
         base.OnEnter(stateMachine);
 
         attackIndex = 1;
-        duration = 0.4f;
+        duration = 0.5f;
         fixedtime = 0f;
         animator.SetTrigger("Attack " + attackIndex);
-        Debug.Log("Attack " + attackIndex);
     }
 
     public override void OnUpdate()
     {
         base.OnUpdate();
-        if(fixedtime >= duration)
+        if (fixedtime >= duration)
         {
-            Debug.Log("g");
             if (shouldCombo)
                 machine.SetNextState(new GroundComboSpin());
             else
