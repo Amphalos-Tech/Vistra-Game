@@ -9,6 +9,8 @@ public class Player : MonoBehaviour
     public float maxHealth;
     [SerializeField] private float health;
 
+    public StateMachine machine;
+
     public float moveSpeed;
     public float jumpSpeed;
     public float fallSpeed;
@@ -25,15 +27,15 @@ public class Player : MonoBehaviour
 
     private float dashCooldownCount;
 
-    private Animator animator;
-    private Rigidbody2D rb;
+    public Animator animator;
+    public Rigidbody2D rb;
     private Vector2 moveDirection;
-    private bool canJump;
+    public bool canJump;
     private bool canDoubleJump;
     private bool wallOnLeft;
     private bool canWallJump;
     private bool canDash;
-    private bool hit;
+    public bool hit;
     private GameObject otherPlayer;
     public static byte[] upgrades;
     private static bool loadedUpgrades = false;
@@ -42,6 +44,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         health = maxHealth;
+        machine = GetComponent<StateMachine>();
         canDoubleJump = true;
         dashCooldownCount = 0;
         Physics.gravity = new Vector3(0, -9.8f, 0);
@@ -159,6 +162,9 @@ public class Player : MonoBehaviour
 
         if (Input.GetButtonDown("Swap") && !invincible)
             Swap();
+
+        if (Input.GetButtonDown("Attack") && machine.CurrentState.GetType() == typeof(Idle))
+            machine.SetNextState(new MeleeEntryState());
     }
 
     void FixedUpdate()
