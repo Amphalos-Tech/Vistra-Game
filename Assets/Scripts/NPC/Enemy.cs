@@ -37,7 +37,7 @@ public class Enemy : MonoBehaviour
             CheckPosition();
         }
     }
-    private void OnDrawGizmosSelected()
+    protected void OnDrawGizmosSelected()
     {
         Gizmos.DrawWireSphere(transform.position, radius);
         Gizmos.DrawLine(new Vector2(transform.position.x+2, transform.position.y), new Vector2(transform.position.x + 2, transform.position.y + height));

@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 8761620058866210975}
   - component: {fileID: 8761620058866210963}
   - component: {fileID: 8761620058866210964}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: MeleeCharacter
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -111,8 +111,14 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+  platformLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  meleeMC: 0
   dashSpeed: 150000
   dashCooldown: 1
+  swapParticles: {fileID: 0}
+  swapParticles2: {fileID: 0}
 --- !u!50 &8761620058866210975
 Rigidbody2D:
   serializedVersion: 4
