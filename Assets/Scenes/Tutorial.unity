@@ -226,6 +226,10 @@ MonoBehaviour:
   dashCooldown: 1
   swapParticles: {fileID: 714711596661628117, guid: 83d5ff5b9f7187441a429b10a845ac31, type: 3}
   swapParticles2: {fileID: 3387551219665372442, guid: 1f8252479bdbd63489b2fc4516acc017, type: 3}
+  animator: {fileID: 0}
+  rb: {fileID: 0}
+  canJump: 0
+  hit: 0
 --- !u!212 &109365730
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -23606,6 +23610,10 @@ MonoBehaviour:
   dashCooldown: 1
   swapParticles: {fileID: 714711596661628117, guid: 83d5ff5b9f7187441a429b10a845ac31, type: 3}
   swapParticles2: {fileID: 3387551219665372442, guid: 1f8252479bdbd63489b2fc4516acc017, type: 3}
+  animator: {fileID: 0}
+  rb: {fileID: 0}
+  canJump: 0
+  hit: 0
 --- !u!212 &1953003929
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -23694,6 +23702,7 @@ GameObject:
   - component: {fileID: 1953003931}
   - component: {fileID: 3212223397342477940}
   - component: {fileID: 3212223397342477941}
+  - component: {fileID: 3212223397342477943}
   m_Layer: 6
   m_Name: MeleePlayer
   m_TagString: Player
@@ -23770,5 +23779,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f102b25a1f21bd243929f5b9e567fc82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: 
-  CurrentState: {fileID: 0}
+  name: MeleeMC
+  player: {fileID: 0}
+--- !u!114 &3212223397342477943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201897056559501856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e741851cba3ad425c91ecf922cc6b379, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _data:
+    _json: '{"declarations":{"Kind":"Object","collection":{"$content":[],"$version":"A"},"$version":"A"}}'
+    _objectReferences: []
