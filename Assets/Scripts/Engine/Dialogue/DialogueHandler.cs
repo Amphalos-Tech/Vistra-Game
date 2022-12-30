@@ -29,7 +29,6 @@ public static class DialogueHandler
         }
         else
         {
-            position = 0; //Set up for future if multiple dialogues in a session
             return null;
         }
     }
@@ -37,5 +36,6 @@ public static class DialogueHandler
     public static void LoadLines()
     {
         dialogueBlocks = DialogueSystem.Read(SaveHandler.Stage);
+        position = 0; //Set up for future if multiple dialogues in a session
     }
 }

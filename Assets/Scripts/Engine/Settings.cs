@@ -16,7 +16,7 @@ public class Settings : MonoBehaviour
 
     public enum TextSpeed
     {
-        Instant = 0,
+        Hyper = 0,
         Fast = 1,
         Medium = 2,
         Slow = 3

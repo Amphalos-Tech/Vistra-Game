@@ -54,7 +54,7 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
 
     void Update()
     {
-        if (Input.anyKeyDown)
+        if (Input.anyKeyDown && Time.timeScale != 0 && !Input.GetKey(KeyCode.Escape)) //Any key while not paused besides pause
         {
             if (animating)
             {
@@ -89,7 +89,7 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
     {
         switch (speed)
         {
-            case Settings.TextSpeed.Instant:
+            case Settings.TextSpeed.Hyper:
                 return 0;
             case Settings.TextSpeed.Fast:
                 return Time.deltaTime;
