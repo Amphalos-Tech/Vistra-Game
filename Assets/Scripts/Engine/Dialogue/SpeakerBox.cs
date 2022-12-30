@@ -22,10 +22,10 @@ public class SpeakerBox : MonoBehaviour
             SetSpeaker();
         }
     }
-    void Start()
+    void Awake()
     {
         speakerImage = GetComponentInChildren<Image>();
-        speakerNametag = speakerObject.GetComponentInChildren<Text>();        
+        speakerNametag = speakerObject.GetComponent<Text>();
     }
 
     void SetSpeaker()
