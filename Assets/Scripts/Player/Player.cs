@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using UnityEngine.Tilemaps;
 public class Player : MonoBehaviour
 {
     public float maxHealth;
-    [SerializeField] private float health;
+    public static float health;
 
     public StateMachine machine;
 
@@ -24,6 +25,7 @@ public class Player : MonoBehaviour
     public float dashCooldown;
     public GameObject swapParticles;
     public GameObject swapParticles2;
+    public GameObject rangedBullet;
 
     private float dashCooldownCount;
 
@@ -39,6 +41,13 @@ public class Player : MonoBehaviour
     private GameObject otherPlayer;
     public static byte[] upgrades;
     private static bool loadedUpgrades = false;
+
+    private bool attack1;
+    private bool attack2;
+    private bool attack3;
+    private bool attack4;
+    private float rotz;
+    private bool dead;
 
     // Start is called before the first frame update
     void Start()
@@ -85,6 +94,12 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!meleeMC)
+        {
+            Vector2 mousedir = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            rotz = Mathf.Atan2(mousedir.y, mousedir.x) * Mathf.Rad2Deg;
+        }
+
         if (rb.velocity.y < 0 && !canJump)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeed - 1) * Time.deltaTime;
@@ -111,10 +126,9 @@ public class Player : MonoBehaviour
             animator.SetBool("Moving", false);
         }
 
-        //IsOnGround();
         animator.SetBool("isgrounded", canJump);
         moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
-        if (Input.GetButtonDown("Jump"))
+        if (Input.GetButtonDown("Jump") && !hit)
         {
             if (canJump)
                 canDoubleJump = true;
@@ -163,8 +177,44 @@ public class Player : MonoBehaviour
         if (Input.GetButtonDown("Swap") && !invincible)
             Swap();
 
-        if (Input.GetButtonDown("Attack") && machine.CurrentState.GetType() == typeof(Idle))
+        if (Input.GetButtonDown("Attack") && meleeMC && machine.CurrentState.GetType() == typeof(Idle) && !animator.GetBool("isDashing"))
             machine.SetNextState(new MeleeEntryState());
+        else if(Input.GetButtonDown("Attack") && !meleeMC && !animator.GetBool("isDashing") && !animator.GetBool("isWallGrabbed"))
+        {
+            if (canJump)
+            {
+                rb.velocity = Vector2.zero;
+                hit = true;
+            }
+            Ranged();
+        }
+
+        if (attack1)
+        {
+            Attack1(1);
+        } else if(attack2) {
+            Attack2(1);
+        } else if(attack3)
+        {
+            Attack3(3);
+        } else if(attack4)
+        {
+            Attack4(4);
+        }
+
+        if (health <= 0 && !dead)
+        {
+            rb.velocity = Vector2.zero;
+            gameObject.tag = "Untagged";
+            gameObject.layer = 0;
+            animator.SetTrigger("Die");
+            GetComponent<Player>().enabled = false;
+        }
+    }
+
+    public void Reset()
+    {
+        hit = false;
     }
 
     void FixedUpdate()
@@ -310,19 +360,157 @@ public class Player : MonoBehaviour
         if(!invincible)
         {
             health -= damage;
+            if (meleeMC)
+                machine.SetNextState(new Idle());
+            else
+                Reset();
             StartCoroutine(Stopper(Mathf.Clamp(iframes, 0, 0.5f)));
             if(Mathf.Abs(transform.position.x - enemypos.x) < 2f)
-                rb.velocity = new Vector2(rb.velocity.x + direction.x * knockback * 3, rb.velocity.y + jumpSpeed / 2);
+                rb.velocity = new Vector2( direction.x * knockback * 3, rb.velocity.y + jumpSpeed / 2);
             else
-                rb.velocity = new Vector2(rb.velocity.x + direction.x * knockback, rb.velocity.y + jumpSpeed/2);
-            Debug.Log(direction);
+                rb.velocity = new Vector2( direction.x * knockback, rb.velocity.y + jumpSpeed/2);
             StartCoroutine(Invincibility(iframes));
         }
     }
 
-    IEnumerator Stopper(float time)
+    public void Attack1(float damage)
+    {
+        Vector2 position = new Vector2(2.13f, -0.045f);
+        Vector2 size = new Vector2(4, 4);
+        Vector2 direction;
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+            direction = Vector2.right;
+        else
+        {
+            direction = Vector2.left;
+            position.x *= -1;
+        }
+
+
+
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        if(enemy)
+        {
+            attack1 = false;
+            GameObject hitEnemy = enemy.collider.gameObject;
+            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+        }
+    }
+
+    public void Attack2(float damage)
+    {
+        Vector2 position = new Vector2(2.6f, -0.55f);
+        Vector2 size = new Vector2(4, 3);
+        Vector2 direction;
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+            direction = Vector2.right;
+        else
+        {
+            direction = Vector2.left;
+            position.x *= -1;
+        }
+
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        if (enemy)
+        {
+            attack2 = false;
+            GameObject hitEnemy = enemy.collider.gameObject;
+            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+        }
+    }
+
+    public void Attack3(float damage)
+    {
+        Vector2 position = new Vector2(4.3f, -0.15f);
+        Vector2 size = new Vector2(4, 3);
+        Vector2 direction;
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+            direction = Vector2.right;
+        else
+        {
+            direction = Vector2.left;
+            position.x *= -1;
+        }
+
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        if (enemy)
+        {
+            attack3 = false;
+            GameObject hitEnemy = enemy.collider.gameObject;
+            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+        }
+    }
+
+    public void Attack4(float damage)
+    {
+        Vector2 position = new Vector2(4.3f, 1.12f);
+        Vector2 size = new Vector2(4, 8);
+        Vector2 direction;
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+            direction = Vector2.right;
+        else
+        {
+            direction = Vector2.left;
+            position.x *= -1;
+        }
+
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        if (enemy)
+        {
+            attack4 = false;
+            GameObject hitEnemy = enemy.collider.gameObject;
+            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+            StartCoroutine(Shake(0.1f, 0.5f));
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+        }
+    }
+
+
+    public void Enable1()
+    {
+        attack1 = true;
+    }
+
+    public void Disable1()
+    {
+        attack1 = false;
+    }
+    public void Enable2()
+    {
+        attack2 = true;
+    }
+
+    public void Disable2()
+    {
+        attack2 = false;
+    }
+
+    public void Enable3()
+    {
+        attack3 = true;
+    }
+
+    public void Disable3()
+    {
+        attack3 = false;
+    }
+    public void Enable4()
+    {
+        attack4 = true;
+    }
+
+    public void Disable4()
+    {
+        attack4 = false;
+    }
+
+    public IEnumerator Stopper(float time)
     {
         hit = true;
+        rb.velocity = Vector2.zero;
         yield return new WaitForSeconds(time);
         hit = false;
     }
@@ -332,5 +520,104 @@ public class Player : MonoBehaviour
         invincible = true;
         yield return new WaitForSeconds(iframes);
         invincible = false;
+    }
+
+    public void Ranged()
+    {
+        float x = 0f;
+        float y = 0f;
+
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+        {
+            if(rotz >-90 && rotz <= 10)
+            {
+                hit = false;
+                x = 0;
+                y = 0;
+            } else if ((rotz <= -170 || rotz > 170f)) {
+                animator.SetTrigger("Shooting");
+                x = 3.125f;
+                y = 1.23f;
+            }
+            else if ((rotz < 170 && rotz > 0)) {
+                animator.SetTrigger("Shooting Down");
+                x = 3.07f;
+                y = -0.3f;
+            }
+            else if ((rotz > -170 && rotz <= -130)) {
+                animator.SetTrigger("Shooting Up");
+                x = 3.07f;
+                y = 2.1f;
+            }
+            else if ((rotz <= -90 && rotz > -130)) {
+                animator.SetTrigger("Shooting Straight Up");
+                x = 1.14f;
+                y = 3.4f;
+            }
+
+            if (rotz < 180 && rotz > 0)
+                rotz -= 360;
+            rotz = Mathf.Clamp(rotz, -210f, -90f);
+        }
+        else
+        {
+            if((rotz < -90 && rotz > -180) || (rotz > 170 && rotz <= 180))
+            {
+                hit = false;
+                x = 0;
+                y = 0;
+            } else if(((rotz >= -10f && rotz <= 0) || (rotz <= 10f && rotz > 0)))
+            {
+                animator.SetTrigger("Shooting");
+                x = -3.125f;
+                y = 0.48f;
+            } else if((rotz < 170 && rotz > 0) || (rotz < 10 && rotz > 0))
+            {
+                animator.SetTrigger("Shooting Down");
+                x = -3.07f;
+                y = -1.28f;
+            } else if((rotz < -10 && rotz >= -70))
+            {
+                animator.SetTrigger("Shooting Up");
+                x = -3.07f;
+                y = 1.35f;
+            } else if((rotz > -90 && rotz < -70))
+            {
+                animator.SetTrigger("Shooting Straight Up");
+                x = -2.14f;
+                y = 3.4f;
+            }
+
+            if (rotz > 30)
+                rotz = 30;
+            else if (rotz < -90)
+                rotz = -90;
+        }
+
+
+        
+
+        GameObject bullet = Instantiate(rangedBullet, new Vector2(transform.position.x + x, transform.position.y + y), Quaternion.Euler(0, 0, rotz));
+        bullet.GetComponent<Rigidbody2D>().AddRelativeForce(Vector2.right * -0.01f, ForceMode2D.Impulse);
+    }
+
+    public IEnumerator Shake(float time, float amount)
+    {
+        Vector3 ogpos = Camera.main.transform.position;
+        float timeElapsed = 0f;
+
+        while (timeElapsed < time)
+        {
+            if (Time.timeScale > 0)
+            {
+                float x = UnityEngine.Random.Range(-1f, 1f) * amount;
+                float z = UnityEngine.Random.Range(-1f, 1f) * amount;
+                Camera.main.transform.position = new Vector3(Camera.main.transform.position.x + x, Camera.main.transform.position.y, Camera.main.transform.position.z + z);
+                timeElapsed += Time.deltaTime;
+            }
+            yield return 0;
+        }
+
+        Camera.main.transform.position = ogpos;
     }
 }
