@@ -30,8 +30,8 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
     void Start()
     {
         textbox = GetComponentInChildren<Text>();
-        textbox.fontSize = CorrespondingFontSize(Settings.Instance.Size);
-        delay = CorrespondingDelay(Settings.Instance.Speed);
+        textbox.fontSize = Settings.CorrespondingFontSize();
+        delay = Settings.CorrespondingDelay();
         DialogueHandler.LoadLines();
         DisplayNextBlock();
     }
@@ -66,40 +66,6 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
             {
                DisplayNextBlock();
             }
-        }
-    }
-
-    int CorrespondingFontSize(Settings.TextSize fontSize)
-    {
-        switch (fontSize)
-        {
-            case Settings.TextSize.Small:
-                return 22;
-            case Settings.TextSize.Medium:
-                return 27;
-            case Settings.TextSize.Large:
-                return 32;
-            default:
-                Debug.Log("An error occured loading text size into dialogue");
-                return 32;
-        }
-    }
-
-    float CorrespondingDelay(Settings.TextSpeed speed)
-    {
-        switch (speed)
-        {
-            case Settings.TextSpeed.Hyper:
-                return 0;
-            case Settings.TextSpeed.Fast:
-                return Time.deltaTime;
-            case Settings.TextSpeed.Medium:
-                return Time.deltaTime * 3;
-            case Settings.TextSpeed.Slow:
-                return Time.deltaTime * 5;
-            default:
-                Debug.Log("An error occured loading text speed into dialogue");
-                return Time.deltaTime * 3;
         }
     }
 

@@ -50,4 +50,37 @@ public class Settings : MonoBehaviour
             Instance = this;
         }
     }
+    public static float CorrespondingDelay() //Following two can be changed to modify whole project
+    {
+        switch (Instance.Speed)
+        {
+            case TextSpeed.Hyper:
+                return 0;
+            case TextSpeed.Fast:
+                return Time.deltaTime;
+            case TextSpeed.Medium:
+                return Time.deltaTime * 3;
+            case TextSpeed.Slow:
+                return Time.deltaTime * 5;
+            default:
+                Debug.Log("An error occured loading text speed into text");
+                return Time.deltaTime * 3;
+        }
+    }
+
+    public static int CorrespondingFontSize()
+    {
+        switch (Instance.Size)
+        {
+            case TextSize.Small:
+                return 22;
+            case TextSize.Medium:
+                return 27;
+            case TextSize.Large:
+                return 32;
+            default:
+                Debug.Log("An error occured loading text size into text");
+                return 32;
+        }
+    }
 }
