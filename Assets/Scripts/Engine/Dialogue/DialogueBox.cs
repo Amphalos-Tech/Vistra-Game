@@ -9,6 +9,8 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
     [SerializeField]
     private SpeakerBox speakerBox;
 
+    private DIalogueNextPointer pointer;
+
     Text textbox;
     bool animating = false;
     float delay;
@@ -32,6 +34,7 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
         textbox = GetComponentInChildren<Text>();
         textbox.fontSize = Settings.CorrespondingFontSize();
         delay = Settings.CorrespondingDelay();
+        pointer = transform.Find("NextArrow").gameObject.GetComponent<DIalogueNextPointer>();
         DialogueHandler.LoadLines();
         DisplayNextBlock();
     }
@@ -56,6 +59,7 @@ public class DialogueBox : MonoBehaviour //ADD A SKIP DIALOGUE LATER
     {
         if (Input.anyKeyDown && Time.timeScale != 0 && !Input.GetKey(KeyCode.Escape)) //Any key while not paused besides pause
         {
+            pointer.Click();
             if (animating)
             {
                 StopAllCoroutines();

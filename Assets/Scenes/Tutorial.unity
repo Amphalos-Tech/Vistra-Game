@@ -134,6 +134,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PauseMenu
       objectReference: {fileID: 0}
+    - target: {fileID: 6318111401208861108, guid: 0d6fdfd26a074e241bff653ee6254581, type: 3}
+      propertyPath: m_SortingOrder
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 6318111401208861109, guid: 0d6fdfd26a074e241bff653ee6254581, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -16755,6 +16759,10 @@ PrefabInstance:
     - target: {fileID: 6318111401208861105, guid: b691217f31d3b0945b317bd3d5eabaab, type: 3}
       propertyPath: m_Name
       value: UIHealthAmmo
+      objectReference: {fileID: 0}
+    - target: {fileID: 6318111401208861108, guid: b691217f31d3b0945b317bd3d5eabaab, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6318111401208861109, guid: b691217f31d3b0945b317bd3d5eabaab, type: 3}
       propertyPath: m_Pivot.x
