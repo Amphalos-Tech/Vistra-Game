@@ -7,6 +7,8 @@ TagManager:
   - OneWayPlatform
   - Ground
   - Enemy
+  - Neuvistran
+  - National Party
   layers:
   - Default
   - TransparentFX

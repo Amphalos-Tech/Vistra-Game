@@ -33,9 +33,15 @@ public class TutorialDrunkard : Enemy
 
         if(health <= 0)
         {
-            Destroy(gameObject);
+            animator.SetTrigger("Die");
         }
     }
+
+    public void Die()
+    {
+        Destroy(gameObject);
+    }
+
 
     void FixedUpdate()
     {
@@ -82,4 +88,6 @@ public class TutorialDrunkard : Enemy
         GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
         hit = false;
     }
+
+    
 }

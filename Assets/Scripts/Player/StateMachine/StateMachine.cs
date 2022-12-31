@@ -16,6 +16,14 @@ public class StateMachine : MonoBehaviour
         if (CurrentState != null)
             CurrentState.OnEnter(this);
     }
+
+    private void OnEnable()
+    {
+        if (nameCustom == "MeleeMC")
+            CurrentState = (State)new Idle();
+        if (CurrentState != null)
+            CurrentState.OnEnter(this);
+    }
     // Update is called once per frame
     void Update()
     {

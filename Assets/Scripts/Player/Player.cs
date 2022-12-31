@@ -8,7 +8,7 @@ using UnityEngine.Tilemaps;
 public class Player : MonoBehaviour
 {
     public float maxHealth;
-    [SerializeField] private float health;
+    public static float health;
 
     public StateMachine machine;
 
@@ -47,6 +47,7 @@ public class Player : MonoBehaviour
     private bool attack3;
     private bool attack4;
     private float rotz;
+    private bool dead;
 
     // Start is called before the first frame update
     void Start()
@@ -200,6 +201,15 @@ public class Player : MonoBehaviour
         {
             Attack4(4);
         }
+
+        if (health <= 0 && !dead)
+        {
+            rb.velocity = Vector2.zero;
+            gameObject.tag = "Untagged";
+            gameObject.layer = 0;
+            animator.SetTrigger("Die");
+            GetComponent<Player>().enabled = false;
+        }
     }
 
     public void Reset()
@@ -350,7 +360,10 @@ public class Player : MonoBehaviour
         if(!invincible)
         {
             health -= damage;
-            machine.SetNextState(new Idle());
+            if (meleeMC)
+                machine.SetNextState(new Idle());
+            else
+                Reset();
             StartCoroutine(Stopper(Mathf.Clamp(iframes, 0, 0.5f)));
             if(Mathf.Abs(transform.position.x - enemypos.x) < 2f)
                 rb.velocity = new Vector2( direction.x * knockback * 3, rb.velocity.y + jumpSpeed / 2);
@@ -450,9 +463,11 @@ public class Player : MonoBehaviour
             attack4 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
             Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+            StartCoroutine(Shake(0.1f, 0.5f));
             hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
         }
     }
+
 
     public void Enable1()
     {
@@ -584,5 +599,25 @@ public class Player : MonoBehaviour
 
         GameObject bullet = Instantiate(rangedBullet, new Vector2(transform.position.x + x, transform.position.y + y), Quaternion.Euler(0, 0, rotz));
         bullet.GetComponent<Rigidbody2D>().AddRelativeForce(Vector2.right * -0.01f, ForceMode2D.Impulse);
+    }
+
+    public IEnumerator Shake(float time, float amount)
+    {
+        Vector3 ogpos = Camera.main.transform.position;
+        float timeElapsed = 0f;
+
+        while (timeElapsed < time)
+        {
+            if (Time.timeScale > 0)
+            {
+                float x = UnityEngine.Random.Range(-1f, 1f) * amount;
+                float z = UnityEngine.Random.Range(-1f, 1f) * amount;
+                Camera.main.transform.position = new Vector3(Camera.main.transform.position.x + x, Camera.main.transform.position.y, Camera.main.transform.position.z + z);
+                timeElapsed += Time.deltaTime;
+            }
+            yield return 0;
+        }
+
+        Camera.main.transform.position = ogpos;
     }
 }

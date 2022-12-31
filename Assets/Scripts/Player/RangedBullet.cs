@@ -20,7 +20,7 @@ public class RangedBullet : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if(collision.gameObject.CompareTag("Enemy"))
+        if(collision.gameObject.CompareTag("Neuvistran") || collision.gameObject.CompareTag("National Party"))
         {
             Vector2 direction;
             if (transform.position.x < collision.gameObject.transform.position.x)
