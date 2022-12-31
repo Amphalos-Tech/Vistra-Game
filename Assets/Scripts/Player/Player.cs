@@ -53,7 +53,8 @@ public class Player : MonoBehaviour
     void Start()
     {
         health = maxHealth;
-        machine = GetComponent<StateMachine>();
+        if(meleeMC)
+            machine = GetComponent<StateMachine>();
         canDoubleJump = true;
         dashCooldownCount = 0;
         Physics.gravity = new Vector3(0, -9.8f, 0);
@@ -360,6 +361,7 @@ public class Player : MonoBehaviour
         if(!invincible)
         {
             health -= damage;
+            StartCoroutine(Shake(0.15f, damage / 25));
             if (meleeMC)
                 machine.SetNextState(new Idle());
             else
