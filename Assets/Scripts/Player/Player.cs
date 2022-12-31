@@ -25,6 +25,7 @@ public class Player : MonoBehaviour
     public float dashCooldown;
     public GameObject swapParticles;
     public GameObject swapParticles2;
+    public GameObject rangedBullet;
 
     private float dashCooldownCount;
 
@@ -45,6 +46,7 @@ public class Player : MonoBehaviour
     private bool attack2;
     private bool attack3;
     private bool attack4;
+    private float rotz;
 
     // Start is called before the first frame update
     void Start()
@@ -91,6 +93,12 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!meleeMC)
+        {
+            Vector2 mousedir = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            rotz = Mathf.Atan2(mousedir.y, mousedir.x) * Mathf.Rad2Deg;
+        }
+
         if (rb.velocity.y < 0 && !canJump)
         {
             rb.velocity += Vector2.up * Physics2D.gravity.y * (fallSpeed - 1) * Time.deltaTime;
@@ -117,7 +125,6 @@ public class Player : MonoBehaviour
             animator.SetBool("Moving", false);
         }
 
-        //IsOnGround();
         animator.SetBool("isgrounded", canJump);
         moveDirection = new Vector2(Input.GetAxis("Horizontal"), 0);
         if (Input.GetButtonDown("Jump") && !hit)
@@ -171,8 +178,15 @@ public class Player : MonoBehaviour
 
         if (Input.GetButtonDown("Attack") && meleeMC && machine.CurrentState.GetType() == typeof(Idle) && !animator.GetBool("isDashing"))
             machine.SetNextState(new MeleeEntryState());
-        else if(Input.GetButtonDown("Attack") && !meleeMC && !animator.GetBool("isDashing"))
-                Ranged();
+        else if(Input.GetButtonDown("Attack") && !meleeMC && !animator.GetBool("isDashing") && !animator.GetBool("isWallGrabbed"))
+        {
+            if (canJump)
+            {
+                rb.velocity = Vector2.zero;
+                hit = true;
+            }
+            Ranged();
+        }
 
         if (attack1)
         {
@@ -186,6 +200,11 @@ public class Player : MonoBehaviour
         {
             Attack4(4);
         }
+    }
+
+    public void Reset()
+    {
+        hit = false;
     }
 
     void FixedUpdate()
@@ -490,6 +509,80 @@ public class Player : MonoBehaviour
 
     public void Ranged()
     {
+        float x = 0f;
+        float y = 0f;
 
+        if (transform.rotation == Quaternion.Euler(0, 0, 0))
+        {
+            if(rotz >-90 && rotz <= 10)
+            {
+                hit = false;
+                x = 0;
+                y = 0;
+            } else if ((rotz <= -170 || rotz > 170f)) {
+                animator.SetTrigger("Shooting");
+                x = 3.125f;
+                y = 1.23f;
+            }
+            else if ((rotz < 170 && rotz > 0)) {
+                animator.SetTrigger("Shooting Down");
+                x = 3.07f;
+                y = -0.3f;
+            }
+            else if ((rotz > -170 && rotz <= -130)) {
+                animator.SetTrigger("Shooting Up");
+                x = 3.07f;
+                y = 2.1f;
+            }
+            else if ((rotz <= -90 && rotz > -130)) {
+                animator.SetTrigger("Shooting Straight Up");
+                x = 1.14f;
+                y = 3.4f;
+            }
+
+            if (rotz < 180 && rotz > 0)
+                rotz -= 360;
+            rotz = Mathf.Clamp(rotz, -210f, -90f);
+        }
+        else
+        {
+            if((rotz < -90 && rotz > -180) || (rotz > 170 && rotz <= 180))
+            {
+                hit = false;
+                x = 0;
+                y = 0;
+            } else if(((rotz >= -10f && rotz <= 0) || (rotz <= 10f && rotz > 0)))
+            {
+                animator.SetTrigger("Shooting");
+                x = -3.125f;
+                y = 0.48f;
+            } else if((rotz < 170 && rotz > 0) || (rotz < 10 && rotz > 0))
+            {
+                animator.SetTrigger("Shooting Down");
+                x = -3.07f;
+                y = -1.28f;
+            } else if((rotz < -10 && rotz >= -70))
+            {
+                animator.SetTrigger("Shooting Up");
+                x = -3.07f;
+                y = 1.35f;
+            } else if((rotz > -90 && rotz < -70))
+            {
+                animator.SetTrigger("Shooting Straight Up");
+                x = -2.14f;
+                y = 3.4f;
+            }
+
+            if (rotz > 30)
+                rotz = 30;
+            else if (rotz < -90)
+                rotz = -90;
+        }
+
+
+        
+
+        GameObject bullet = Instantiate(rangedBullet, new Vector2(transform.position.x + x, transform.position.y + y), Quaternion.Euler(0, 0, rotz));
+        bullet.GetComponent<Rigidbody2D>().AddRelativeForce(Vector2.right * -0.01f, ForceMode2D.Impulse);
     }
 }
