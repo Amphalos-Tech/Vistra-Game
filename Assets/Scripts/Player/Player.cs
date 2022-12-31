@@ -53,7 +53,8 @@ public class Player : MonoBehaviour
     void Start()
     {
         health = maxHealth;
-        machine = GetComponent<StateMachine>();
+        if(meleeMC)
+            machine = GetComponent<StateMachine>();
         canDoubleJump = true;
         dashCooldownCount = 0;
         Physics.gravity = new Vector3(0, -9.8f, 0);
@@ -360,6 +361,7 @@ public class Player : MonoBehaviour
         if(!invincible)
         {
             health -= damage;
+            StartCoroutine(Shake(0.25f, damage / 25));
             if (meleeMC)
                 machine.SetNextState(new Idle());
             else
@@ -603,7 +605,7 @@ public class Player : MonoBehaviour
 
     public IEnumerator Shake(float time, float amount)
     {
-        Vector3 ogpos = Camera.main.transform.position;
+        //Vector3 ogpos = Camera.main.transform.position;
         float timeElapsed = 0f;
 
         while (timeElapsed < time)
@@ -618,6 +620,6 @@ public class Player : MonoBehaviour
             yield return 0;
         }
 
-        Camera.main.transform.position = ogpos;
+        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
     }
 }
