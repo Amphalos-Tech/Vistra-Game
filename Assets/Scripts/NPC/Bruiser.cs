@@ -112,7 +112,7 @@ public class Bruiser : Enemy
             playerClass = collision.gameObject.GetComponent<Player>();
             StartCoroutine(Reset());
         }
-        else if(collision.gameObject.CompareTag("Neuvistran") && !attacking)
+        else if(collision.gameObject.CompareTag("Neuvistran") && !attacking && !canSeePlayer)
         {
             animator.SetBool("Attacking", true);
             enemy = collision.gameObject.GetComponent<Enemy>();

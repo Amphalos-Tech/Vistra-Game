@@ -111,7 +111,7 @@ public class RifleSlapper : Enemy
             playerClass = collision.gameObject.GetComponent<Player>();
             StartCoroutine(Reset());
         }
-        else if (collision.gameObject.CompareTag("National Party"))
+        else if (collision.gameObject.CompareTag("National Party") && !canSeePlayer)
         {
             animator.SetTrigger("Attack");
             enemy = collision.gameObject.GetComponent<Enemy>();
