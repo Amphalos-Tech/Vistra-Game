@@ -46,12 +46,10 @@ public class SpeakerBox : MonoBehaviour
 
         if (speakerElements[0].Equals("MC1") || speakerElements[0].Equals("MC2"))
         {
-            Debug.Log("reached line 49");
             speakerFrame.sprite = frames[1];
         }
         else speakerFrame.sprite = frames[0]; //MCs get portal frame, Vistrans get ice frame
 
         speakerImage.sprite = images.Where(img => img.name.Equals(_speaker)).ElementAt(0); //set matching portrait
-        Debug.Log($"Speaker Frame Sprite Should be vs is: {frames[1].name}, {speakerFrame.sprite}");
     }
 }
