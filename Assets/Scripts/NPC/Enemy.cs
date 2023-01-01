@@ -26,7 +26,13 @@ public class Enemy : MonoBehaviour
         health = maxHealth;
         StartCoroutine(FieldOfView(delay));
     }
-
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(gameObject.tag))
+        {
+            Physics2D.IgnoreCollision(gameObject.GetComponent<BoxCollider2D>(), collision.collider);
+        }
+    }
 
     public IEnumerator FieldOfView(float delay)
     {
