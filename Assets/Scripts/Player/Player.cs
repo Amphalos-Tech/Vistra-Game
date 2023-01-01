@@ -405,7 +405,8 @@ public class Player : MonoBehaviour
             attack1 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
             Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            if (hitEnemy != null)
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
         }
     }
 
@@ -428,7 +429,8 @@ public class Player : MonoBehaviour
             attack2 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
             Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            if(hitEnemy != null)
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
         }
     }
 
@@ -451,7 +453,8 @@ public class Player : MonoBehaviour
             attack3 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
             Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            if (hitEnemy != null)
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
         }
     }
 
@@ -475,7 +478,8 @@ public class Player : MonoBehaviour
             GameObject hitEnemy = enemy.collider.gameObject;
             Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
             StartCoroutine(Shake(0.1f, 0.5f));
-            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            if (hitEnemy != null)
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
         }
     }
 
@@ -629,6 +633,6 @@ public class Player : MonoBehaviour
             yield return 0;
         }
 
-        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
+        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y + Camera.main.GetComponent<CameraFollow>().yoffset, -10);
     }
 }

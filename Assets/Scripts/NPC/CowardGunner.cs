@@ -20,6 +20,7 @@ public class CowardGunner : Enemy
     private Animator animator;
     private Rigidbody2D rb;
     private bool hit;
+    private bool OnWall;
     // Start is called before the first frame update
     void Start()
     {
@@ -37,19 +38,20 @@ public class CowardGunner : Enemy
 
     private void FixedUpdate()
     {
+        Debug.Log(OnWall);
         if (!playerInRange && !hit && canSeePlayer)
         {
             animator.SetBool("Moving", true);
             rb.velocity = new Vector2(direction.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
         }
-        else if (!attacking && !hit && playerInRange && !playerTooClose)
+        else if (!attacking && !hit && playerInRange && (!playerTooClose || OnWall))
         {
             animator.SetBool("Moving", false);
             rb.velocity = new Vector2(0, rb.velocity.y);
             animator.SetTrigger("Attack");
             StartCoroutine(Attack());
 
-        } else if(playerTooClose && !hit)
+        } else if(playerTooClose && !hit && !OnWall)
         {
             animator.SetBool("Moving", true);
             rb.velocity = new Vector2(-direction.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
@@ -66,20 +68,20 @@ public class CowardGunner : Enemy
             StartCoroutine(CheckClose());
 
 
-        if (transform.position.x > player.transform.position.x && !hit && !playerTooClose)
+        if (transform.position.x > player.transform.position.x && !hit && (!playerTooClose || OnWall))
         {
             transform.localRotation = Quaternion.Euler(0, 180, 0);
             offset = -1;
         }
-        else if(transform.position.x < player.transform.position.x && !hit && !playerTooClose) {
+        else if(transform.position.x < player.transform.position.x && !hit && (!playerTooClose || OnWall)) {
             transform.localRotation = Quaternion.Euler(0, 0, 0);
             offset = 1;
         }
-        else if (!hit && playerTooClose && transform.position.x > player.transform.position.x)
+        else if (!hit && playerTooClose && transform.position.x > player.transform.position.x && !OnWall)
         {
             transform.localRotation = Quaternion.Euler(0, 0, 0);
             offset = 1;
-        } else if(!hit && playerTooClose && transform.position.x < player.transform.position.x)
+        } else if(!hit && playerTooClose && transform.position.x < player.transform.position.x && !OnWall)
         {
             offset = -1;
             transform.localRotation = Quaternion.Euler(0, 180, 0);
@@ -115,6 +117,11 @@ public class CowardGunner : Enemy
         {
             collision.gameObject.GetComponent<Player>().Hit(5f, 0.75f, direction, 15f, transform.position);
         }
+        if(playerTooClose && collision.gameObject.CompareTag("Ground") && rb.velocity.x <= 1)
+        {
+            OnWall = true;
+        } else
+            OnWall = false;
     }
 
     protected override void OnDrawGizmosSelected()
