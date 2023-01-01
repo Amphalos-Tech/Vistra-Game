@@ -57,14 +57,14 @@ public class Settings : MonoBehaviour
             case TextSpeed.Hyper:
                 return 0;
             case TextSpeed.Fast:
-                return Time.deltaTime;
+                return Time.deltaTime*.9f;
             case TextSpeed.Medium:
-                return Time.deltaTime * 3;
+                return Time.deltaTime * 2;
             case TextSpeed.Slow:
-                return Time.deltaTime * 5;
+                return Time.deltaTime * 4;
             default:
                 Debug.Log("An error occured loading text speed into text");
-                return Time.deltaTime * 3;
+                return Time.deltaTime * 2;
         }
     }
 

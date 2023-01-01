@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,14 +19,24 @@ public class PausePanel : MonoBehaviour
         {
             Time.timeScale = Time.timeScale == 1 ? 0 : 1; //Swaps between normal and frozen
             panel.SetActive(!panel.activeInHierarchy); //Swaps between active and inactive
-            var player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
+            ToggleCursorLockIfNecessary();
+        }
+    }
+
+    public static void ToggleCursorLockIfNecessary()
+    {
+        var player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            if (player.GetComponent<Player>().meleeMC) //Toggles cursor lock and unlock if melee
             {
-                if (player.GetComponent<Player>().meleeMC) //Toggles cursor lock and unlock if melee
+                if (Cursor.lockState == CursorLockMode.Locked)
                 {
-                    if (Cursor.lockState == CursorLockMode.Locked) 
-                        Cursor.lockState = CursorLockMode.None;
-                    else Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.lockState = CursorLockMode.None;
+                }
+                else
+                {
+                    Cursor.lockState = CursorLockMode.Locked;
                 }
             }
         }
