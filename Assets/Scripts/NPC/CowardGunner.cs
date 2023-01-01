@@ -14,7 +14,6 @@ public class CowardGunner : Enemy
     public float closeRange;
 
     private int offset;
-    private float animationOffset = 0.66f;
     private bool attacking;
     private bool playerInRange;
     private bool playerTooClose;

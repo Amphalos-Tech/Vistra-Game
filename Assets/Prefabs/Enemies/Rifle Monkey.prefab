@@ -109,6 +109,9 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
   obstruction:
     serializedVersion: 2
     m_Bits: 8

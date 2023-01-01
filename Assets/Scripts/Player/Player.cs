@@ -387,21 +387,20 @@ public class Player : MonoBehaviour
 
     public void Attack1(float damage)
     {
-        Vector2 position = new Vector2(2.13f, -0.045f);
-        Vector2 size = new Vector2(4, 4);
+        float x = -3f;
+        Vector2 size = new Vector2(9, 4);
         Vector2 direction;
         if (transform.rotation == Quaternion.Euler(0, 0, 0))
             direction = Vector2.right;
         else
         {
+            x *= -1;
             direction = Vector2.left;
-            position.x *= -1;
         }
 
 
-
-        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
-        if(enemy)
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 2.25f, enemyLayer);
+        if (enemy)
         {
             attack1 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
@@ -412,18 +411,18 @@ public class Player : MonoBehaviour
 
     public void Attack2(float damage)
     {
-        Vector2 position = new Vector2(2.6f, -0.55f);
-        Vector2 size = new Vector2(4, 3);
+        float x = -3f;
+        Vector2 size = new Vector2(9, 3);
         Vector2 direction;
         if (transform.rotation == Quaternion.Euler(0, 0, 0))
             direction = Vector2.right;
         else
         {
             direction = Vector2.left;
-            position.x *= -1;
+            x *= -1;
         }
 
-        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 1.5f, enemyLayer);
         if (enemy)
         {
             attack2 = false;
@@ -435,18 +434,18 @@ public class Player : MonoBehaviour
 
     public void Attack3(float damage)
     {
-        Vector2 position = new Vector2(4.3f, -0.15f);
-        Vector2 size = new Vector2(4, 3);
+        float x = -5f;
+        Vector2 size = new Vector2(12, 3);
         Vector2 direction;
         if (transform.rotation == Quaternion.Euler(0, 0, 0))
             direction = Vector2.right;
         else
         {
+            x *= -1;
             direction = Vector2.left;
-            position.x *= -1;
         }
 
-        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 3.5f, enemyLayer);
         if (enemy)
         {
             attack3 = false;
@@ -458,18 +457,18 @@ public class Player : MonoBehaviour
 
     public void Attack4(float damage)
     {
-        Vector2 position = new Vector2(4.3f, 1.12f);
-        Vector2 size = new Vector2(4, 8);
+        float x = -5f;
+        Vector2 size = new Vector2(12, 8);
         Vector2 direction;
         if (transform.rotation == Quaternion.Euler(0, 0, 0))
             direction = Vector2.right;
         else
         {
+            x *= -1;
             direction = Vector2.left;
-            position.x *= -1;
         }
 
-        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + position.x, transform.position.y + position.y), size, 0f, direction, 0.1f, enemyLayer);
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 3.5f, enemyLayer);
         if (enemy)
         {
             attack4 = false;
