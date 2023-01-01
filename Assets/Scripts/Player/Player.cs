@@ -95,7 +95,13 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!meleeMC)
+        if (Time.timeScale != 0)
+            UpdateAsUsual();
+    }
+
+    void UpdateAsUsual()
+    {
+        if (!meleeMC)
         {
             Vector2 mousedir = transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
             rotz = Mathf.Atan2(mousedir.y, mousedir.x) * Mathf.Rad2Deg;
@@ -138,13 +144,13 @@ public class Player : MonoBehaviour
                 Jump(1f);
             if (canDoubleJump && !canJump && !animator.GetBool("isWallGrabbed"))
             {
-                if(animator.GetBool("isFalling"))
+                if (animator.GetBool("isFalling"))
                     Jump(0.6f);
                 else
                     Jump(1f);
                 animator.SetTrigger("DoubleJump");
-                canDoubleJump=false;
-            } 
+                canDoubleJump = false;
+            }
         }
 
         if (IsOnWall() && (wallOnLeft ? moveDirection.x > 0 : moveDirection.x < 0) && Input.GetButton("Jump") && canWallJump && !canJump)
@@ -180,7 +186,7 @@ public class Player : MonoBehaviour
 
         if (Input.GetButtonDown("Attack") && meleeMC && machine.CurrentState.GetType() == typeof(Idle) && !animator.GetBool("isDashing"))
             machine.SetNextState(new MeleeEntryState());
-        else if(Input.GetButtonDown("Attack") && !meleeMC && !animator.GetBool("isDashing") && !animator.GetBool("isWallGrabbed"))
+        else if (Input.GetButtonDown("Attack") && !meleeMC && !animator.GetBool("isDashing") && !animator.GetBool("isWallGrabbed"))
         {
             if (canJump)
             {
@@ -193,12 +199,16 @@ public class Player : MonoBehaviour
         if (attack1)
         {
             Attack1(1);
-        } else if(attack2) {
+        }
+        else if (attack2)
+        {
             Attack2(1);
-        } else if(attack3)
+        }
+        else if (attack3)
         {
             Attack3(3);
-        } else if(attack4)
+        }
+        else if (attack4)
         {
             Attack4(4);
         }
