@@ -55,13 +55,13 @@ public class Enemy : MonoBehaviour
     private void CheckPosition()
     {
         Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, radius, playerLayer);
-        gameObject.layer = random;
+        //gameObject.layer = random;
         Collider2D rangeEnemy = Physics2D.OverlapCircle(transform.position, radius, enemyLayer);
-        gameObject.layer = enemyLayer;
-
+        //gameObject.layer = enemyLayer;
+        /*
         if (rangeEnemy != null && rangeEnemy.gameObject.tag == gameObject.tag)
             rangeEnemy = null;
-
+        */
         if(rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= height)
         {
             direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
@@ -78,7 +78,7 @@ public class Enemy : MonoBehaviour
                 canSeePlayer = false;
         } else
             canSeePlayer = false;
-
+        /*
         if (rangeEnemy != null && Mathf.Abs(rangeEnemy.transform.position.y - transform.position.y) <= height)
         {
             enemyDirection = new Vector2(rangeEnemy.gameObject.transform.position.x - transform.position.x, rangeEnemy.gameObject.transform.position.y - transform.position.y).normalized;
@@ -96,6 +96,7 @@ public class Enemy : MonoBehaviour
         }
         else
             canSeeEnemy = false;
+        */
     }
 
     public virtual void Hit(float damage, Vector2 d)

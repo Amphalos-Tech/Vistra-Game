@@ -50,8 +50,8 @@ public class Bruiser : Enemy
     {
         if (canSeePlayer && move && !hit)
             rb.velocity = new Vector2(direction.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
-        else if(canSeeEnemy && move && !hit)
-            rb.velocity = new Vector2(enemyDirection.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
+       // else if(canSeeEnemy && move && !hit)
+         //   rb.velocity = new Vector2(enemyDirection.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
         else if (!hit || attacking)
             rb.velocity = new Vector2(0, rb.velocity.y);
 
@@ -68,13 +68,14 @@ public class Bruiser : Enemy
             animator.SetBool("Attacking", true);
             playerClass = collision.gameObject.GetComponent<Player>();
             StartCoroutine(Reset());
-        }
+        }/*
         else if(collision.gameObject.CompareTag("Neuvistran") && !attacking)
         {
             animator.SetBool("Attacking", true);
             enemy = collision.gameObject.GetComponent<Enemy>();
             StartCoroutine(Reset());
         }
+        */
         if (collision.gameObject.CompareTag("Player") && (Mathf.Abs(transform.position.x - collision.gameObject.transform.position.x) < 3f))
              playerClass.Hit(10f, 0.75f, direction, 10f, transform.position);
     }
@@ -83,8 +84,8 @@ public class Bruiser : Enemy
     {
         if (Physics2D.IsTouching(player.gameObject.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>()))
             playerClass.Hit(10f, 0.75f, direction, 25f, transform.position);
-        else if (Physics2D.IsTouching(enemy.gameObject.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>()))
-            enemy.Hit(1f, enemyDirection);
+        //else if (Physics2D.IsTouching(enemy.gameObject.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>()))
+          //  enemy.Hit(1f, enemyDirection);
     }
 
     IEnumerator Reset()
