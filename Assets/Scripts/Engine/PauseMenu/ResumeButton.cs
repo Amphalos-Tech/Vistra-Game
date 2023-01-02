@@ -10,6 +10,7 @@ public class ResumeButton : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData data)
     {
         Time.timeScale = 1;
+        PausePanel.ToggleCursorLockIfNecessary();
         pauseMenu.SetActive(false);
     }
 }

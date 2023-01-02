@@ -14,4 +14,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TutorialDialogue.unity
     guid: d0d16e09bc82bc34b8c66856dd8b236a
+  - enabled: 1
+    path: Assets/Scenes/BreakPoint.unity
+    guid: e42748c295ba6874683f24f954b1472c
+  - enabled: 1
+    path: Assets/Scenes/NeuvistranMeet.unity
+    guid: 46bcd73d0a370b84e895587b06649e7b
   m_configObjects: {}

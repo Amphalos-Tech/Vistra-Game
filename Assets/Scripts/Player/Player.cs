@@ -9,6 +9,11 @@ public class Player : MonoBehaviour
 {
     public float maxHealth;
     public static float health;
+    public int maxAmmo;
+    public static int ammo;
+
+    [SerializeField]
+    private HealthAmmoPanel uiPanel;
 
     public StateMachine machine;
 
@@ -47,13 +52,15 @@ public class Player : MonoBehaviour
     private bool attack3;
     private bool attack4;
     private float rotz;
-    private bool dead;
 
     // Start is called before the first frame update
     void Start()
     {
         health = maxHealth;
-        if(meleeMC)
+        uiPanel.SetMaxHealth(maxHealth);
+        ammo = maxAmmo;
+        uiPanel.SetMaxAmmo(maxAmmo);
+        if (meleeMC)
             machine = GetComponent<StateMachine>();
         canDoubleJump = true;
         dashCooldownCount = 0;
@@ -67,7 +74,7 @@ public class Player : MonoBehaviour
 
         if(!loadedUpgrades)
         {
-            //upgrades = SaveHandler.Upgrades;
+            upgrades = SaveHandler.Upgrades;
             loadedUpgrades = true;
         }
     }
@@ -181,12 +188,12 @@ public class Player : MonoBehaviour
             animator.SetBool("isDashing", true);
         }
 
-        if (Input.GetButtonDown("Swap") && !invincible)
+        if (Input.GetButtonDown("Swap") && !animator.GetBool("isDashing"))
             Swap();
 
         if (Input.GetButtonDown("Attack") && meleeMC && machine.CurrentState.GetType() == typeof(Idle) && !animator.GetBool("isDashing"))
             machine.SetNextState(new MeleeEntryState());
-        else if (Input.GetButtonDown("Attack") && !meleeMC && !animator.GetBool("isDashing") && !animator.GetBool("isWallGrabbed"))
+        else if (Input.GetButtonDown("Attack") && !meleeMC && !animator.GetBool("isDashing") && !animator.GetBool("isWallGrabbed") && ammo-- > 0)
         {
             if (canJump)
             {
@@ -213,11 +220,12 @@ public class Player : MonoBehaviour
             Attack4(4);
         }
 
-        if (health <= 0 && !dead)
+        if (health <= 0)
         {
             rb.velocity = Vector2.zero;
             gameObject.tag = "Untagged";
             gameObject.layer = 0;
+            PausePanel.dead = true;
             animator.SetTrigger("Die");
             GetComponent<Player>().enabled = false;
         }
@@ -260,7 +268,8 @@ public class Player : MonoBehaviour
             StartCoroutine(Dash());
         }
 
-
+        if (transform.position.y <= 0)
+            health = 0;
     }
 
     public void Jump(float divider)
@@ -371,6 +380,7 @@ public class Player : MonoBehaviour
         if(!invincible)
         {
             health -= damage;
+            uiPanel.Health -= damage;
             StartCoroutine(Shake(0.25f, damage / 25));
             if (meleeMC)
                 machine.SetNextState(new Idle());
@@ -405,8 +415,13 @@ public class Player : MonoBehaviour
         {
             attack1 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
-            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            if (hitEnemy != null)
+            {
+                Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+                if (ammo < maxAmmo)
+                    uiPanel.Ammo = ++ammo;
+            }
         }
     }
 
@@ -428,8 +443,13 @@ public class Player : MonoBehaviour
         {
             attack2 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
-            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            if (hitEnemy != null)
+            {
+                Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+                if (ammo < maxAmmo)
+                    uiPanel.Ammo = ++ammo;
+            }
         }
     }
 
@@ -451,8 +471,13 @@ public class Player : MonoBehaviour
         {
             attack3 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
-            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            if (hitEnemy != null)
+            {
+                Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+                if (ammo < maxAmmo)
+                    uiPanel.Ammo = ++ammo;
+            }
         }
     }
 
@@ -474,9 +499,14 @@ public class Player : MonoBehaviour
         {
             attack4 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
-            Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            StartCoroutine(Shake(0.1f, 0.5f));
-            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            if (hitEnemy != null)
+            {
+                Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
+                StartCoroutine(Shake(0.1f, 0.5f));
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+                if (ammo < maxAmmo)
+                    uiPanel.Ammo = ++ammo;
+            }
         }
     }
 
@@ -541,11 +571,12 @@ public class Player : MonoBehaviour
 
         if (transform.rotation == Quaternion.Euler(0, 0, 0))
         {
-            if(rotz >-90 && rotz <= 10)
+            if(rotz >-90 && rotz <= 100)
             {
                 hit = false;
                 x = 0;
                 y = 0;
+                ammo++;
             } else if ((rotz <= -170 || rotz > 170f)) {
                 animator.SetTrigger("Shooting");
                 x = 3.125f;
@@ -573,11 +604,12 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if((rotz < -90 && rotz > -180) || (rotz > 170 && rotz <= 180))
+            if((rotz < -90 && rotz > -180) || (rotz > 80 && rotz <= 180))
             {
                 hit = false;
                 x = 0;
                 y = 0;
+                ammo++;
             } else if(((rotz >= -10f && rotz <= 0) || (rotz <= 10f && rotz > 0)))
             {
                 animator.SetTrigger("Shooting");
@@ -611,6 +643,9 @@ public class Player : MonoBehaviour
 
         GameObject bullet = Instantiate(rangedBullet, new Vector2(transform.position.x + x, transform.position.y + y), Quaternion.Euler(0, 0, rotz));
         bullet.GetComponent<Rigidbody2D>().AddRelativeForce(Vector2.right * -0.01f, ForceMode2D.Impulse);
+
+        if (uiPanel.Ammo != ammo)
+            uiPanel.Ammo = ammo;
     }
 
     public IEnumerator Shake(float time, float amount)
