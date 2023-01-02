@@ -55,16 +55,16 @@ public class Settings : MonoBehaviour
         switch (Instance.Speed)
         {
             case TextSpeed.Hyper:
-                return 0;
+                return 1f/144f;
             case TextSpeed.Fast:
-                return Time.deltaTime*.9f;
+                return 1f/60f;
             case TextSpeed.Medium:
-                return Time.deltaTime * 2;
+                return 2f/60f;
             case TextSpeed.Slow:
-                return Time.deltaTime * 4;
+                return 4/60f;
             default:
                 Debug.Log("An error occured loading text speed into text");
-                return Time.deltaTime * 2;
+                return 2f/60f;
         }
     }
 

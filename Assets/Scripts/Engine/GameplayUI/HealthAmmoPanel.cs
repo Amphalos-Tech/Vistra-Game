@@ -9,8 +9,8 @@ public class HealthAmmoPanel : MonoBehaviour
     private Animator healthAnimator, ammoAnimator;
     private Image healthBar, ammoBar;
 
-    private float _health, maxHealth = 100f;
-    private byte _ammo, maxAmmo = 25;
+    private float _health, maxHealth;
+    private int _ammo, maxAmmo;
 
     public float Health
     {
@@ -22,7 +22,7 @@ public class HealthAmmoPanel : MonoBehaviour
         }
     }
 
-    public byte Ammo 
+    public int Ammo 
     {
         get => _ammo;
         set
@@ -36,8 +36,10 @@ public class HealthAmmoPanel : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        healthBar = transform.GetChild(0).GetComponentInChildren<Image>();
-        ammoBar = transform.GetChild(1).GetComponentInChildren<Image>();
+        healthBar = transform.GetChild(0).GetChild(0).GetComponent<Image>();
+        ammoBar = transform.GetChild(1).GetChild(0).GetComponent<Image>();
+        healthBar.type = Image.Type.Filled;
+        ammoBar.type = Image.Type.Filled;
         healthBar.fillMethod = Image.FillMethod.Vertical;
         ammoBar.fillMethod = Image.FillMethod.Vertical;
 
@@ -48,15 +50,15 @@ public class HealthAmmoPanel : MonoBehaviour
 
     void ModifyHealth(float newHealth)
     {
-        healthAnimator.SetTrigger("RotateTrigger");
         StartCoroutine("AnimateHealth", newHealth);
         
     }
 
-    IEnumerable AnimateHealth(float newHealth) //private variable acts as past value since this is called before the value is updated
+    IEnumerator AnimateHealth(float newHealth) //private variable acts as past value since this is called before the value is updated
     {
         if (newHealth < _health)
         {
+            healthAnimator.SetTrigger("RotateTrigger");
             for (float f = _health; f >= newHealth; f -= .1f)
             {
                 healthBar.fillAmount = f / maxHealth;
@@ -65,6 +67,7 @@ public class HealthAmmoPanel : MonoBehaviour
         }
         else
         {
+            healthAnimator.SetTrigger("ReverseRotateTrigger");
             for (float f = _health; f <= newHealth; f += .1f)
             {
                 healthBar.fillAmount = f / maxHealth;
@@ -73,16 +76,16 @@ public class HealthAmmoPanel : MonoBehaviour
         }
     }
 
-    void ModifyAmmo(byte newAmmo)
+    void ModifyAmmo(int newAmmo)
     {
-        ammoAnimator.SetTrigger("RotateTrigger");
         StartCoroutine("AnimateAmmo", newAmmo);
     }
 
-    IEnumerable AnimateAmmo(byte newAmmo)
+    IEnumerator AnimateAmmo(int newAmmo)
     {
         if (newAmmo < _ammo)
         {
+            ammoAnimator.SetTrigger("RotateTrigger");
             for (float f = _ammo; f >= newAmmo; f -= .1f)
             {
                 ammoBar.fillAmount = f / maxAmmo;
@@ -91,11 +94,24 @@ public class HealthAmmoPanel : MonoBehaviour
         }
         else
         {
+            ammoAnimator.SetTrigger("ReverseRotateTrigger");
             for (float f = _ammo; f <= newAmmo; f += .1f)
             {
                 ammoBar.fillAmount = f / maxAmmo;
                 yield return null;
             }
         }
+    }
+
+    public void SetMaxHealth(float newMaxHealth)
+    {
+        maxHealth = newMaxHealth;
+        _health = newMaxHealth;
+    }
+
+    public void SetMaxAmmo(int newMaxAmmo)
+    {
+        maxAmmo = newMaxAmmo;
+        _ammo = newMaxAmmo;
     }
 }

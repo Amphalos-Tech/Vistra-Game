@@ -6,7 +6,7 @@ using UnityEngine;
 public class TextPopup : MonoBehaviour
 {
     private GameObject player;
-    private float xDistanceToLoad = 10f, yDistanceToLoad = 1f, delay;
+    private float xDistanceToLoad = 10f, yDistanceToLoad = 10f, delay;
     private TMP_Text text;
     private string initialText;
     // Start is called before the first frame update
@@ -16,11 +16,12 @@ public class TextPopup : MonoBehaviour
         text = GetComponent<TMP_Text>();
         initialText = text.text;
         text.text = "";
+        text.fontSize = Settings.CorrespondingFontSize();
         player = GameObject.FindGameObjectWithTag("Player");
         StartCoroutine("DetectPlayer");
     }
 
-    IEnumerable DetectPlayer()
+    IEnumerator DetectPlayer()
     {
         while (true)
         {
@@ -37,7 +38,7 @@ public class TextPopup : MonoBehaviour
         }
     }
 
-    IEnumerable AnimateText()
+    IEnumerator AnimateText()
     {
         for (byte i = 0; i < initialText.Length; i++)
         {

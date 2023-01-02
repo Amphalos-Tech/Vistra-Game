@@ -6,6 +6,10 @@ using UnityEngine;
 public class PausePanel : MonoBehaviour
 {
     private GameObject panel;
+    public static bool dead;
+
+    void Awake() => dead = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -15,7 +19,7 @@ public class PausePanel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !dead)
         {
             Time.timeScale = Time.timeScale == 1 ? 0 : 1; //Swaps between normal and frozen
             panel.SetActive(!panel.activeInHierarchy); //Swaps between active and inactive
