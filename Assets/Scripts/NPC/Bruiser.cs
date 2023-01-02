@@ -128,7 +128,7 @@ public class Bruiser : Enemy
         if (Physics2D.IsTouching(player.gameObject.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>()))
             playerClass.Hit(10f, 0.75f, direction, 25f, transform.position);
         else if (canSeeEnemy && !canSeePlayer && Physics2D.IsTouching(enemy.gameObject.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>()))
-            enemy.Hit(1f, enemyDirection);
+            enemy.Hit(0f, enemyDirection);
     }
 
     IEnumerator Reset()

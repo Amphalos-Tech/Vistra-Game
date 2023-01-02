@@ -21,6 +21,9 @@ public class CowardGunner : Enemy
     private Rigidbody2D rb;
     private bool hit;
     private bool OnWall;
+    private Vector2 enemyDirection;
+    private bool canSeeEnemy;
+    private bool enemyInRange;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,13 +35,14 @@ public class CowardGunner : Enemy
     // Update is called once per frame
     void Update()
     {
-        if (canSeePlayer)
+        if (canSeePlayer || canSeeEnemy)
             StartCoroutine(RangeChecker());
+        else if (!canSeePlayer)
+            StartCoroutine(EnemyChecker());
     }
 
     private void FixedUpdate()
     {
-        Debug.Log(OnWall);
         if (!playerInRange && !hit && canSeePlayer)
         {
             animator.SetBool("Moving", true);
@@ -55,6 +59,12 @@ public class CowardGunner : Enemy
         {
             animator.SetBool("Moving", true);
             rb.velocity = new Vector2(-direction.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
+        } else if(canSeeEnemy && !hit && !attacking)
+        {
+            animator.SetBool("Moving", false);
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            animator.SetTrigger("Attack");
+            StartCoroutine(Attack());
         }
         else if(!hit)
         {
@@ -67,24 +77,40 @@ public class CowardGunner : Enemy
         if (playerInRange)
             StartCoroutine(CheckClose());
 
+        if(canSeePlayer)
+        {
+            if (transform.position.x > player.transform.position.x && !hit && (!playerTooClose || OnWall))
+            {
+                transform.localRotation = Quaternion.Euler(0, 180, 0);
+                offset = -1;
+            }
+            else if (transform.position.x < player.transform.position.x && !hit && (!playerTooClose || OnWall))
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+                offset = 1;
+            }
+            else if (!hit && playerTooClose && transform.position.x > player.transform.position.x && !OnWall)
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+                offset = 1;
+            }
+            else if (!hit && playerTooClose && transform.position.x < player.transform.position.x && !OnWall)
+            {
+                offset = -1;
+                transform.localRotation = Quaternion.Euler(0, 180, 0);
+            }
 
-        if (transform.position.x > player.transform.position.x && !hit && (!playerTooClose || OnWall))
+        }  else if(canSeeEnemy)
         {
-            transform.localRotation = Quaternion.Euler(0, 180, 0);
-            offset = -1;
-        }
-        else if(transform.position.x < player.transform.position.x && !hit && (!playerTooClose || OnWall)) {
-            transform.localRotation = Quaternion.Euler(0, 0, 0);
-            offset = 1;
-        }
-        else if (!hit && playerTooClose && transform.position.x > player.transform.position.x && !OnWall)
-        {
-            transform.localRotation = Quaternion.Euler(0, 0, 0);
-            offset = 1;
-        } else if(!hit && playerTooClose && transform.position.x < player.transform.position.x && !OnWall)
-        {
-            offset = -1;
-            transform.localRotation = Quaternion.Euler(0, 180, 0);
+            if(enemyDirection.x < 0 && !hit)
+            {
+                transform.localRotation = Quaternion.Euler(0, 180, 0);
+                offset = -1;
+            } else if(enemyDirection.x > 0 && !hit)
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+                offset = 1;
+            }
         }
 
 
@@ -104,10 +130,20 @@ public class CowardGunner : Enemy
     IEnumerator Attack()
     {
         attacking = true;
-        while (playerInRange)
+        if(playerInRange)
         {
-            yield return new WaitForSeconds(1f);
-            animator.SetTrigger("Attack");
+            while (playerInRange)
+            {
+                yield return new WaitForSeconds(1f);
+                animator.SetTrigger("Attack");
+            }
+        } else if(enemyInRange)
+        {
+            while(enemyInRange)
+            {
+                yield return new WaitForSeconds(1f);
+                animator.SetTrigger("Attack");
+            }
         }
         attacking = false;
     }
@@ -136,12 +172,22 @@ public class CowardGunner : Enemy
 
     IEnumerator RangeChecker()
     {
-        while (canSeePlayer)
+        if(canSeePlayer)
         {
-            yield return new WaitForSeconds(delay);
-            if (!player.activeSelf)
-                player = GameObject.FindWithTag("Player");
-            CheckRange();
+            while (canSeePlayer)
+            {
+                yield return new WaitForSeconds(delay);
+                if (!player.activeSelf)
+                    player = GameObject.FindWithTag("Player");
+                CheckRange();
+            }
+        } else if(canSeeEnemy)
+        {
+            while(canSeeEnemy)
+            {
+                yield return new WaitForSeconds(delay);
+                CheckRange();
+            }
         }
     }
 
@@ -156,48 +202,110 @@ public class CowardGunner : Enemy
         }
     }
 
-    void CheckCloseRange()
+    IEnumerator EnemyChecker()
     {
-        Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, closeRange, playerLayer);
-        if (rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= rangeHeight)
+        WaitForSeconds delaySeconds = new WaitForSeconds(delay);
+
+        while (true)
         {
-            direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
+            yield return delaySeconds;
+            if (!player.activeSelf)
+                player = GameObject.FindWithTag("Player");
+            PositionCheck();
+        }
+    }
+
+    void PositionCheck()
+    {
+
+        RaycastHit2D rangeObj = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y), new Vector2(1, 0), radius, enemyLayer);
+        if (rangeObj == false)
+            rangeObj = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y), new Vector2(-1, 0), radius, enemyLayer);
+
+        if (rangeObj && !rangeObj.transform.gameObject.CompareTag(gameObject.tag) && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= height)
+        {
+            enemyDirection = new Vector2(rangeObj.transform.position.x - transform.position.x, rangeObj.transform.position.y - transform.position.y).normalized;
             if (Vector2.Angle(transform.position, direction) < angle / 2)
             {
-                float distance = Vector2.Distance(transform.position, player.transform.position);
+                float distance = Vector2.Distance(transform.position, rangeObj.transform.position);
 
-                if (Physics2D.Raycast(transform.position, direction, distance, obstruction))
-                    playerTooClose = false;
+                if (Physics2D.Raycast(transform.position, enemyDirection, distance, obstruction))
+                    canSeeEnemy = false;
                 else
-                    playerTooClose = true;
+                    canSeeEnemy = true;
+            }
+            else
+                canSeeEnemy = false;
+        }
+        else
+            canSeeEnemy = false;
+    }
+
+    void CheckCloseRange()
+    {
+            Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, closeRange, playerLayer);
+            if (rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= rangeHeight)
+            {
+                direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
+                if (Vector2.Angle(transform.position, direction) < angle / 2)
+                {
+                    float distance = Vector2.Distance(transform.position, player.transform.position);
+
+                    if (Physics2D.Raycast(transform.position, direction, distance, obstruction))
+                        playerTooClose = false;
+                    else
+                        playerTooClose = true;
+                }
+                else
+                    playerTooClose = false;
             }
             else
                 playerTooClose = false;
-        }
-        else
-            playerTooClose = false;
     }
 
     void CheckRange()
     {
-        Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, range, playerLayer);
-        if (rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= rangeHeight)
+        if (canSeePlayer)
         {
-            direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
-            if (Vector2.Angle(transform.position, direction) < angle / 2)
+            Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, range, playerLayer);
+            if (rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= rangeHeight)
             {
-                float distance = Vector2.Distance(transform.position, player.transform.position);
+                direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
+                if (Vector2.Angle(transform.position, direction) < angle / 2)
+                {
+                    float distance = Vector2.Distance(transform.position, player.transform.position);
 
-                if (Physics2D.Raycast(transform.position, direction, distance, obstruction))
-                    playerInRange = false;
+                    if (Physics2D.Raycast(transform.position, direction, distance, obstruction))
+                        playerInRange = false;
+                    else
+                        playerInRange = true;
+                }
                 else
-                    playerInRange = true;
+                    playerInRange = false;
             }
             else
                 playerInRange = false;
+        } else if(canSeeEnemy)
+        {
+            Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, range, enemyLayer);
+            if (rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= rangeHeight)
+            {
+                enemyDirection = new Vector2(rangeObj.transform.position.x - transform.position.x, rangeObj.transform.position.y - transform.position.y).normalized;
+                if (Vector2.Angle(transform.position, direction) < angle / 2)
+                {
+                    float distance = Vector2.Distance(transform.position, rangeObj.transform.position);
+
+                    if (Physics2D.Raycast(transform.position, enemyDirection, distance, obstruction))
+                        enemyInRange = false;
+                    else
+                        enemyInRange = true;
+                }
+                else
+                    enemyInRange = false;
+            }
+            else
+                enemyInRange = false;
         }
-        else
-            playerInRange = false;
     }
 
 

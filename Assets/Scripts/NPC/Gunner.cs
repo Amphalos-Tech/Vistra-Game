@@ -18,6 +18,9 @@ public class Gunner : Enemy
     private Animator animator;
     private Rigidbody2D rb;
     private bool hit;
+    private Vector2 enemyDirection;
+    private bool canSeeEnemy;
+    private bool enemyInRange;
     // Start is called before the first frame update
     void Start()
     {
@@ -29,8 +32,10 @@ public class Gunner : Enemy
     // Update is called once per frame
     void Update()
     {
-        if (canSeePlayer)
+        if (canSeePlayer || canSeeEnemy)
             StartCoroutine(RangeChecker());
+        else if (!canSeePlayer)
+            StartCoroutine(EnemyChecker());
     }
 
     private void FixedUpdate()
@@ -53,21 +58,42 @@ public class Gunner : Enemy
             }
 
         }
+        else if (canSeeEnemy && !hit && !attacking)
+        {
+            animator.SetBool("Moving", false);
+            rb.velocity = new Vector2(0, rb.velocity.y);
+            animator.SetTrigger("Attack");
+            StartCoroutine(Attack());
+        }
         else
             animator.SetBool("Moving", false);
 
 
+        if(canSeePlayer)
+        {
+            if (transform.position.x > player.transform.position.x && !hit)
+            {
+                transform.localRotation = Quaternion.Euler(0, 180, 0);
+                offset = -1;
+            }
+            else if (!hit)
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+                offset = 1;
+            }
+        } else if(canSeeEnemy)
+        {
+            if(enemyDirection.x < 0 && !hit)
+            {
+                transform.localRotation = Quaternion.Euler(0, 180, 0);
+                offset = -1;
+            } else if(enemyDirection.x > 0 && !hit)
+            {
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+                offset = 1;
+            }
+        }
 
-        if (transform.position.x > player.transform.position.x && !hit)
-        {
-            transform.localRotation = Quaternion.Euler(0, 180, 0);
-            offset = -1;
-        }
-        else if(!hit)
-        {
-            transform.localRotation = Quaternion.Euler(0, 0, 0);
-            offset = 1;
-        }
 
         if (health <= 0)
         {
@@ -84,10 +110,21 @@ public class Gunner : Enemy
     IEnumerator Attack()
     {
         attacking = true;
-        while(playerInRange)
+        if (playerInRange)
         {
-            yield return new WaitForSeconds(1f);
-            animator.SetTrigger("Attack");
+            while (playerInRange)
+            {
+                yield return new WaitForSeconds(1f);
+                animator.SetTrigger("Attack");
+            }
+        }
+        else if (enemyInRange)
+        {
+            while (enemyInRange)
+            {
+                yield return new WaitForSeconds(1f);
+                animator.SetTrigger("Attack");
+            }
         }
         attacking = false;
     }
@@ -103,36 +140,112 @@ public class Gunner : Enemy
 
     IEnumerator RangeChecker()
     {
-        while(canSeePlayer)
+        if (canSeePlayer)
         {
-            yield return new WaitForSeconds(delay);
+            while (canSeePlayer)
+            {
+                yield return new WaitForSeconds(delay);
+                if (!player.activeSelf)
+                    player = GameObject.FindWithTag("Player");
+                CheckRange();
+            }
+        }
+        else if (canSeeEnemy)
+        {
+            while (canSeeEnemy)
+            {
+                yield return new WaitForSeconds(delay);
+                CheckRange();
+            }
+        }
+    }
+
+    IEnumerator EnemyChecker()
+    {
+        WaitForSeconds delaySeconds = new WaitForSeconds(delay);
+
+        while (true)
+        {
+            yield return delaySeconds;
             if (!player.activeSelf)
                 player = GameObject.FindWithTag("Player");
-            CheckRange();
+            PositionCheck();
         }
     }
 
     void CheckRange()
     {
-        Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, range, playerLayer);
-        if (rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= rangeHeight)
+        if (canSeePlayer)
         {
-            direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
-            if (Vector2.Angle(transform.position, direction) < angle / 2)
+            Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, range, playerLayer);
+            if (rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= rangeHeight)
             {
-                float distance = Vector2.Distance(transform.position, player.transform.position);
+                direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
+                if (Vector2.Angle(transform.position, direction) < angle / 2)
+                {
+                    float distance = Vector2.Distance(transform.position, player.transform.position);
 
-                if (Physics2D.Raycast(transform.position, direction, distance, obstruction))
-                    playerInRange = false;
+                    if (Physics2D.Raycast(transform.position, direction, distance, obstruction))
+                        playerInRange = false;
+                    else
+                        playerInRange = true;
+                }
                 else
-                    playerInRange = true;
+                    playerInRange = false;
             }
             else
                 playerInRange = false;
         }
-        else
-            playerInRange = false;
+        else if (canSeeEnemy)
+        {
+            Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, range, enemyLayer);
+            if (rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= rangeHeight)
+            {
+                enemyDirection = new Vector2(rangeObj.transform.position.x - transform.position.x, rangeObj.transform.position.y - transform.position.y).normalized;
+                if (Vector2.Angle(transform.position, direction) < angle / 2)
+                {
+                    float distance = Vector2.Distance(transform.position, rangeObj.transform.position);
+
+                    if (Physics2D.Raycast(transform.position, enemyDirection, distance, obstruction))
+                        enemyInRange = false;
+                    else
+                        enemyInRange = true;
+                }
+                else
+                    enemyInRange = false;
+            }
+            else
+                enemyInRange = false;
+        }
     }
+
+    void PositionCheck()
+    {
+
+        RaycastHit2D rangeObj = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y), new Vector2(1, 0), radius, enemyLayer);
+        if (rangeObj == false)
+            rangeObj = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y), new Vector2(-1, 0), radius, enemyLayer);
+
+        if (rangeObj && !rangeObj.transform.gameObject.CompareTag(gameObject.tag) && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= height)
+        {
+            enemyDirection = new Vector2(rangeObj.transform.position.x - transform.position.x, rangeObj.transform.position.y - transform.position.y).normalized;
+            if (Vector2.Angle(transform.position, direction) < angle / 2)
+            {
+                float distance = Vector2.Distance(transform.position, rangeObj.transform.position);
+
+                if (Physics2D.Raycast(transform.position, enemyDirection, distance, obstruction))
+                    canSeeEnemy = false;
+                else
+                    canSeeEnemy = true;
+            }
+            else
+                canSeeEnemy = false;
+        }
+        else
+            canSeeEnemy = false;
+    }
+
+
 
     public void Shoot()
     {

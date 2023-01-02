@@ -405,8 +405,7 @@ public class Player : MonoBehaviour
             attack1 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
             Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            if (hitEnemy != null)
-                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
         }
     }
 
@@ -429,8 +428,7 @@ public class Player : MonoBehaviour
             attack2 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
             Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            if(hitEnemy != null)
-                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
         }
     }
 
@@ -453,8 +451,7 @@ public class Player : MonoBehaviour
             attack3 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
             Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-            if (hitEnemy != null)
-                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
         }
     }
 
@@ -478,8 +475,7 @@ public class Player : MonoBehaviour
             GameObject hitEnemy = enemy.collider.gameObject;
             Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
             StartCoroutine(Shake(0.1f, 0.5f));
-            if (hitEnemy != null)
-                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+            hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
         }
     }
 

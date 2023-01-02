@@ -126,7 +126,7 @@ public class RifleSlapper : Enemy
         if(Physics2D.IsTouching(player.gameObject.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>()))
             playerClass.Hit(5f, 0.75f, direction, 15f, transform.position);
         else if (canSeeEnemy && !canSeePlayer && Physics2D.IsTouching(enemy.gameObject.GetComponent<BoxCollider2D>(), GetComponent<BoxCollider2D>()))
-            enemy.Hit(1f, enemyDirection);
+            enemy.Hit(0f, enemyDirection);
     }
 
     IEnumerator Reset()
