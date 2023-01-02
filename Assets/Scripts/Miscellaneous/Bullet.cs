@@ -33,6 +33,15 @@ public class Bullet : MonoBehaviour
                 direction = new Vector2(-1, 0);
                 
             collision.gameObject.GetComponent<Player>().Hit(damage, iframes, direction, knockback, transform.position);
+        } else if(collision.gameObject.CompareTag("National Party"))
+        {
+            Vector2 direction;
+            if (transform.position.x < collision.gameObject.transform.position.x)
+                direction = new Vector2(1, 0);
+            else
+                direction = new Vector2(-1, 0);
+
+            collision.gameObject.GetComponent<Enemy>().Hit(0, direction);
         }
         Destroy(gameObject);
     }

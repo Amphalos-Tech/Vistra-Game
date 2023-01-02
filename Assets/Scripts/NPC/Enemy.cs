@@ -14,16 +14,11 @@ public class Enemy : MonoBehaviour
 
     protected GameObject player;
     protected Vector2 direction;
-    protected Vector2 enemyDirection;
     protected bool canSeePlayer;
-    protected bool canSeeEnemy;
 
     public LayerMask playerLayer;
     public LayerMask enemyLayer;
     public LayerMask obstruction;
-    public LayerMask random;
-
-    private GameObject[] players;
     // Start is called before the first frame update
     protected void Exist()
     {
@@ -31,7 +26,13 @@ public class Enemy : MonoBehaviour
         health = maxHealth;
         StartCoroutine(FieldOfView(delay));
     }
-
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag(gameObject.tag))
+        {
+            Physics2D.IgnoreCollision(gameObject.GetComponent<BoxCollider2D>(), collision.collider);
+        }
+    }
 
     public IEnumerator FieldOfView(float delay)
     {
@@ -55,13 +56,6 @@ public class Enemy : MonoBehaviour
     private void CheckPosition()
     {
         Collider2D rangeObj = Physics2D.OverlapCircle(transform.position, radius, playerLayer);
-        //gameObject.layer = random;
-        Collider2D rangeEnemy = Physics2D.OverlapCircle(transform.position, radius, enemyLayer);
-        //gameObject.layer = enemyLayer;
-        /*
-        if (rangeEnemy != null && rangeEnemy.gameObject.tag == gameObject.tag)
-            rangeEnemy = null;
-        */
         if(rangeObj != null && Mathf.Abs(rangeObj.transform.position.y - transform.position.y) <= height)
         {
             direction = new Vector2(player.transform.position.x - transform.position.x, player.transform.position.y - transform.position.y).normalized;
@@ -78,25 +72,6 @@ public class Enemy : MonoBehaviour
                 canSeePlayer = false;
         } else
             canSeePlayer = false;
-        /*
-        if (rangeEnemy != null && Mathf.Abs(rangeEnemy.transform.position.y - transform.position.y) <= height)
-        {
-            enemyDirection = new Vector2(rangeEnemy.gameObject.transform.position.x - transform.position.x, rangeEnemy.gameObject.transform.position.y - transform.position.y).normalized;
-            if (Vector2.Angle(transform.position, direction) < angle / 2)
-            {
-                float distance = Vector2.Distance(transform.position, rangeEnemy.transform.position);
-
-                if (Physics2D.Raycast(transform.position, enemyDirection, distance, obstruction))
-                    canSeeEnemy = false;
-                else
-                    canSeeEnemy = true;
-            }
-            else
-                canSeeEnemy = false;
-        }
-        else
-            canSeeEnemy = false;
-        */
     }
 
     public virtual void Hit(float damage, Vector2 d)
