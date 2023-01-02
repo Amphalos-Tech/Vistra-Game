@@ -269,7 +269,10 @@ public class Player : MonoBehaviour
         }
 
         if (transform.position.y <= 0)
+        {
             health = 0;
+            Cursor.lockState = CursorLockMode.None;
+        }
     }
 
     public void Jump(float divider)

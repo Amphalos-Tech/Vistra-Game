@@ -443,7 +443,6 @@ GameObject:
   - component: {fileID: 1769802292}
   - component: {fileID: 1769802291}
   - component: {fileID: 1769802290}
-  - component: {fileID: 1769802289}
   m_Layer: 5
   m_Name: BreakPointMenu
   m_TagString: Untagged
@@ -451,18 +450,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1769802289
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1769802288}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 226e7cc4987f69e41a7d69692cac85cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1769802290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -641,7 +628,7 @@ GameObject:
   - component: {fileID: 1975161393}
   - component: {fileID: 1975161392}
   - component: {fileID: 1975161391}
-  - component: {fileID: 1975161390}
+  - component: {fileID: 1975161395}
   m_Layer: 5
   m_Name: ContinueButton
   m_TagString: Untagged
@@ -649,19 +636,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1975161390
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1975161389}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95652c94a4dde814b838412743fe20aa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pauseMenu: {fileID: 807477934}
 --- !u!114 &1975161391
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -768,6 +742,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 320, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1975161395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1975161389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44f7fd969bf7d82479eb6c502e1dd1db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2086680570
 GameObject:
   m_ObjectHideFlags: 0

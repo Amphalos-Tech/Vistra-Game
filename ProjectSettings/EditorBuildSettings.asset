@@ -20,4 +20,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/NeuvistranMeet.unity
     guid: 46bcd73d0a370b84e895587b06649e7b
+  - enabled: 1
+    path: Assets/Scenes/NeuvistranMeetDialogue.unity
+    guid: 992a38d61225c5e4fadbcd268d802004
+  - enabled: 1
+    path: Assets/Scenes/NaPaMeet.unity
+    guid: 1b6e0df6d3e9b004284de0e564a08fee
+  - enabled: 1
+    path: Assets/Scenes/NaPaMeetDialogue.unity
+    guid: 87665b316c4f3344cac0a6e4f45d3d59
   m_configObjects: {}

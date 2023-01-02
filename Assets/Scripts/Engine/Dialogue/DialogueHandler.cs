@@ -16,7 +16,7 @@ public static class DialogueHandler
         {
             List<DialogueBlock> blocks = new List<DialogueBlock>
             {
-                new DialogueBlock() { Speaker = "MC1", Words = "A coroutine is a method that you declare with an IEnumerator return type and with a yield return statement included somewhere in the body. The yield return nullline is the point where execution pauses and resumes in the following frame. To set a coroutine running, you need to use the StartCoroutine function:" }
+                new DialogueBlock() { Speaker = "MC2", Words = "A coroutine is a method that you declare with an IEnumerator return type and with a yield return statement included somewhere in the body. The yield return nullline is the point where execution pauses and resumes in the following frame. To set a coroutine running, you need to use the StartCoroutine function:" }
             };
             DialogueSystem.Write(blocks, SaveHandler.Stage);
         }
