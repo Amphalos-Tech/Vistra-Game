@@ -263,14 +263,18 @@ public class Gunner : Enemy
     {
         base.Hit(damage, d);
 
-        rb.velocity = new Vector2(d.x * knockbackTaken, rb.velocity.y + knockHeight);
+        if (canSeePlayer)
+            rb.velocity = new Vector2(d.x * knockbackTaken, rb.velocity.y + knockHeight);
+        else
+            rb.velocity = new Vector2(d.x * knockbackTaken / 2, rb.velocity.y + knockHeight);
         hit = true;
         StartCoroutine(ColorIndicator());
     }
 
     IEnumerator ColorIndicator()
     {
-        animator.SetBool("Attack", false);
+        if(canSeePlayer)
+            animator.SetBool("Attack", false);
         GetComponent<SpriteRenderer>().color = new Color(1, 0.675f, 0.675f);
         yield return new WaitForSeconds(0.5f);
         GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);

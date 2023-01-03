@@ -46,7 +46,6 @@ public class EliteKnight : Enemy
         }
         else if (!attacking && !hit && playerInRange)
         {
-            //animator.SetBool("Moving", false);
             if (animationOffset > 0f)
                 animationOffset -= Time.deltaTime;
             else
@@ -64,8 +63,7 @@ public class EliteKnight : Enemy
         }
         else if (enemyInRange && !hit && !attacking)
         {
-            animator.SetBool("Moving", false);
-            rb.velocity = new Vector2(0, rb.velocity.y);
+            rb.velocity = new Vector2(enemyDirection.x * (moveSpeed + 250) * Time.fixedDeltaTime, rb.velocity.y);
             animator.SetTrigger("Attack");
             StartCoroutine(Attack());
         }else 
@@ -134,6 +132,8 @@ public class EliteKnight : Enemy
         {
             while (enemyInRange)
             {
+                animator.SetBool("Moving", true);
+                rb.velocity = new Vector2(enemyDirection.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
                 yield return new WaitForSeconds(2f);
                 animator.SetTrigger("Attack");
             }
@@ -193,7 +193,6 @@ public class EliteKnight : Enemy
         }
         else if (collision.gameObject.CompareTag("Neuvistran") && !canSeePlayer)
         {
-            animator.SetTrigger("Attack");
             collision.gameObject.GetComponent<Enemy>().Hit(0, enemyDirection);
         }
         if (collision.gameObject.CompareTag("Player") && (Mathf.Abs(transform.position.x - collision.gameObject.transform.position.x) < 3f))
