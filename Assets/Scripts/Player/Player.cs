@@ -420,7 +420,7 @@ public class Player : MonoBehaviour
             if (hitEnemy != null)
             {
                 Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);    
                 if (ammo < maxAmmo)
                     uiPanel.Ammo = ++ammo;
             }
