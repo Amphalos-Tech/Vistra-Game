@@ -48,11 +48,11 @@ public class CowardGunner : Enemy
             animator.SetBool("Moving", true);
             rb.velocity = new Vector2(direction.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
         }
-        else if (!attacking && !hit && playerInRange && (!playerTooClose || OnWall))
+        else if (!attacking && !hit && canSeePlayer && playerInRange && (!playerTooClose || OnWall))
         {
             animator.SetBool("Moving", false);
             rb.velocity = new Vector2(0, rb.velocity.y);
-            animator.SetTrigger("Attack");
+            animator.SetBool("Attack", true);
             StartCoroutine(Attack());
 
         } else if(playerTooClose && !hit && !OnWall)
@@ -63,7 +63,7 @@ public class CowardGunner : Enemy
         {
             animator.SetBool("Moving", false);
             rb.velocity = new Vector2(0, rb.velocity.y);
-            animator.SetTrigger("Attack");
+            animator.SetBool("Attack", true);
             StartCoroutine(Attack());
         }
         else if(!hit)
@@ -132,17 +132,17 @@ public class CowardGunner : Enemy
         attacking = true;
         if(playerInRange)
         {
-            while (playerInRange)
+            while (playerInRange && !hit && canSeePlayer)
             {
                 yield return new WaitForSeconds(1f);
-                animator.SetTrigger("Attack");
+                animator.SetBool("Attack", true);
             }
         } else if(enemyInRange)
         {
             while(enemyInRange)
             {
                 yield return new WaitForSeconds(1f);
-                animator.SetTrigger("Attack");
+                animator.SetBool("Attack", true);
             }
         }
         attacking = false;
@@ -312,7 +312,16 @@ public class CowardGunner : Enemy
 
     public void Shoot()
     {
-        Instantiate(bullet, new Vector2(transform.position.x + offset * 3f, transform.position.y), transform.localRotation);
+        if(canSeePlayer)
+            Instantiate(bullet, new Vector2(transform.position.x + offset * 3f, transform.position.y), transform.localRotation);
+        else
+            animator.SetBool("Attack", false);
+
+    }
+
+    public void StopAttack()
+    {
+        animator.SetBool("Attack", false);
     }
 
     public override void Hit(float damage, Vector2 d)
@@ -326,6 +335,7 @@ public class CowardGunner : Enemy
 
     IEnumerator ColorIndicator()
     {
+        animator.SetBool("Attack", false);
         GetComponent<SpriteRenderer>().color = new Color(1, 0.675f, 0.675f);
         yield return new WaitForSeconds(0.75f);
         GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);

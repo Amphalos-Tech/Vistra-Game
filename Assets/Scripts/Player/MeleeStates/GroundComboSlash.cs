@@ -9,7 +9,7 @@ public class GroundComboSlash : MeleeBaseState
         base.OnEnter(stateMachine);
 
         attackIndex = 3;
-        duration = 0.7f;
+        duration = 0.58f;
         animator.SetTrigger("Attack " + attackIndex);
     }
 

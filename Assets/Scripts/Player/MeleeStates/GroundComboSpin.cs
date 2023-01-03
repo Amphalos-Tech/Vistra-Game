@@ -9,7 +9,7 @@ public class GroundComboSpin : MeleeBaseState
         base.OnEnter(stateMachine);
 
         attackIndex = 2;
-        duration = 0.6f;
+        duration = 0.5f;
         animator.SetTrigger("Attack " + attackIndex);
     }
 

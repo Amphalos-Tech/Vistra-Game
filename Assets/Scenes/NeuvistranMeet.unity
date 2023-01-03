@@ -130,6 +130,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
+      propertyPath: maxHealth
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 5859375530261269560, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
       propertyPath: m_RootOrder
       value: 17
@@ -243,6 +247,10 @@ PrefabInstance:
       propertyPath: radius
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 7438573949530690815, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
+      propertyPath: maxHealth
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
 --- !u!1001 &66758846
@@ -259,6 +267,10 @@ PrefabInstance:
     - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
       propertyPath: radius
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
+      propertyPath: maxHealth
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
       propertyPath: closeRange
@@ -388,7 +400,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7438573949530690813, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7438573949530690813, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
       propertyPath: m_LocalPosition.x
@@ -437,6 +449,10 @@ PrefabInstance:
     - target: {fileID: 7438573949530690815, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
       propertyPath: radius
       value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438573949530690815, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
+      propertyPath: maxHealth
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
@@ -551,10 +567,6 @@ PrefabInstance:
     - target: {fileID: 8152703342971395533, guid: 2e9991391c131c4498940554192685ee, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8561525958269630576, guid: 2e9991391c131c4498940554192685ee, type: 3}
-      propertyPath: maxAmmo
-      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 8561525958269630576, guid: 2e9991391c131c4498940554192685ee, type: 3}
       propertyPath: uiPanel
@@ -678,6 +690,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gunner
       objectReference: {fileID: 0}
+    - target: {fileID: 7438573949530690809, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7438573949530690813, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
       propertyPath: m_RootOrder
       value: 21
@@ -721,6 +737,10 @@ PrefabInstance:
     - target: {fileID: 7438573949530690813, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438573949530690815, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
+      propertyPath: maxHealth
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
@@ -927,6 +947,10 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
+      propertyPath: maxHealth
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
       propertyPath: closeRange
       value: 5
       objectReference: {fileID: 0}
@@ -1042,6 +1066,10 @@ PrefabInstance:
     - target: {fileID: 7438573949530690815, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
       propertyPath: radius
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438573949530690815, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
+      propertyPath: maxHealth
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
@@ -1217,6 +1245,10 @@ PrefabInstance:
     - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
       propertyPath: radius
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
+      propertyPath: maxHealth
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
       propertyPath: closeRange
@@ -4014,6 +4046,10 @@ PrefabInstance:
       propertyPath: radius
       value: 25
       objectReference: {fileID: 0}
+    - target: {fileID: 7438573949530690815, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
+      propertyPath: maxHealth
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
 --- !u!1 &1347343381
@@ -4120,6 +4156,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7438573949530690815, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
+      propertyPath: maxHealth
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
 --- !u!1001 &1493151390
@@ -4176,6 +4216,10 @@ PrefabInstance:
     - target: {fileID: 7438573949530690813, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7438573949530690815, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
+      propertyPath: maxHealth
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4552c4515f08bc545b297291d9f2a999, type: 3}
@@ -5374,6 +5418,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
+      propertyPath: range
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
+      propertyPath: radius
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
+      propertyPath: maxHealth
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1193148859375976786, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
+      propertyPath: closeRange
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 5859375530261269560, guid: 724ae551077e4e74b964f0714bb7727e, type: 3}
       propertyPath: m_RootOrder
       value: 20
@@ -23654,6 +23714,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PauseMenu
       objectReference: {fileID: 0}
+    - target: {fileID: 6318111401208861105, guid: 0d6fdfd26a074e241bff653ee6254581, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6318111401208861109, guid: 0d6fdfd26a074e241bff653ee6254581, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -23823,7 +23887,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1744962773
 MonoBehaviour:

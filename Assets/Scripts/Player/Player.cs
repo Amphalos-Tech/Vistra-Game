@@ -205,19 +205,19 @@ public class Player : MonoBehaviour
 
         if (attack1)
         {
-            Attack1(1);
+            Attack1(2);
         }
         else if (attack2)
         {
-            Attack2(1);
+            Attack2(2);
         }
         else if (attack3)
         {
-            Attack3(3);
+            Attack3(6);
         }
         else if (attack4)
         {
-            Attack4(4);
+            Attack4(8);
         }
 
         if (health <= 0)
@@ -440,7 +440,7 @@ public class Player : MonoBehaviour
             x *= -1;
         }
 
-        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 1.5f, enemyLayer);
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 2f, enemyLayer);
         if (enemy)
         {
             attack2 = false;
@@ -468,7 +468,7 @@ public class Player : MonoBehaviour
             direction = Vector2.left;
         }
 
-        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 3.5f, enemyLayer);
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 4f, enemyLayer);
         if (enemy)
         {
             attack3 = false;

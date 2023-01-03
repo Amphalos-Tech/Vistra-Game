@@ -20,8 +20,9 @@ public class MeleeBaseState : State
     public override void OnUpdate()
     {
         base.OnUpdate();
-      if(Input.GetButtonDown("Attack") && fixedtime > 0.1d)
+      if(Input.GetButtonDown("Attack") && fixedtime > 0.1f)
             shouldCombo = true;
+
     }
 
     public override void OnExit()
