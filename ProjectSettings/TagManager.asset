@@ -8,6 +8,7 @@ TagManager:
   - Ground
   - Neuvistran
   - National Party
+  - PostProcessor
   layers:
   - Default
   - TransparentFX
@@ -18,7 +19,7 @@ TagManager:
   - Player
   - Enemy
   - Platform
-  - 
+  - PostProccessing
   - 
   - 
   - 

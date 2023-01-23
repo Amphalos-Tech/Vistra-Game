@@ -17,6 +17,7 @@ public class GroundEntryState : MeleeBaseState
     public override void OnUpdate()
     {
         base.OnUpdate();
+        //machine.player.hit = true;
         if (fixedtime >= duration)
         {
             if (shouldCombo)

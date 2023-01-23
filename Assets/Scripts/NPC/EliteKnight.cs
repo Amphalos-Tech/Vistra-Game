@@ -276,7 +276,6 @@ public class EliteKnight : Enemy
         base.Hit(damage, d);
 
         rb.velocity = new Vector2(d.x * knockbackTaken, rb.velocity.y + knockHeight);
-        hit = true;
         StartCoroutine(ColorIndicator());
     }
 
@@ -286,6 +285,5 @@ public class EliteKnight : Enemy
         GetComponent<SpriteRenderer>().color = new Color(1, 0.675f, 0.675f);
         yield return new WaitForSeconds(0.5f);
         GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
-        hit = false;
     }
 }

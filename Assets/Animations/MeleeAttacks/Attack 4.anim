@@ -107,7 +107,7 @@ AnimationClip:
     functionName: Stopper
     data: 
     objectReferenceParameter: {fileID: 0}
-    floatParameter: 0.4
+    floatParameter: 0.3
     intParameter: 0
     messageOptions: 0
   - time: 1.0833334
