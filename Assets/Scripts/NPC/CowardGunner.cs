@@ -46,6 +46,7 @@ public class CowardGunner : Enemy
         if (!playerInRange && !hit && canSeePlayer)
         {
             animator.SetBool("Moving", true);
+            animator.SetBool("Attack", false);
             rb.velocity = new Vector2(direction.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
         }
         else if (!attacking && !hit && canSeePlayer && playerInRange && (!playerTooClose || OnWall))
@@ -58,6 +59,7 @@ public class CowardGunner : Enemy
         } else if(playerTooClose && !hit && !OnWall)
         {
             animator.SetBool("Moving", true);
+            animator.SetBool("Attack", false);
             rb.velocity = new Vector2(-direction.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
         } else if(canSeeEnemy && !hit && !attacking)
         {
@@ -149,16 +151,22 @@ public class CowardGunner : Enemy
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player") && health > 0)
         {
             collision.gameObject.GetComponent<Player>().Hit(5f, 0.75f, direction, 15f, transform.position);
         }
-        if(playerTooClose && collision.gameObject.CompareTag("Ground") && rb.velocity.x <= 1)
+        if (playerTooClose && collision.gameObject.CompareTag("Ground") && rb.velocity.x <= 20 && !collision.gameObject.CompareTag("Player") && (Physics2D.BoxCast(transform.position, gameObject.GetComponent<BoxCollider2D>().size, 0f, Vector2.left, 0.3f, obstruction) || Physics2D.BoxCast(transform.position, gameObject.GetComponent<BoxCollider2D>().size, 0, Vector2.right, 0.3f, obstruction)))
         {
             OnWall = true;
-        } else
+            animator.SetTrigger("Cornered");
+        }
+        else
+        {
             OnWall = false;
+            animator.SetTrigger("Saved");
+        }
     }
+
 
     protected override void OnDrawGizmosSelected()
     {

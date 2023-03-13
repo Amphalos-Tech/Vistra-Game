@@ -229,6 +229,7 @@ public class Player : MonoBehaviour
         if (health <= 0)
         {
             rb.velocity = Vector2.zero;
+            rb.isKinematic = true;
             gameObject.tag = "Untagged";
             gameObject.layer = 0;
             PausePanel.dead = true;
@@ -467,7 +468,7 @@ public class Player : MonoBehaviour
             StartCoroutine(Stopper(Mathf.Clamp(iframes, 0, 0.5f)));
             if(Mathf.Abs(transform.position.x - enemypos.x) < 2f)
                 rb.velocity = new Vector2( direction.x * knockback * 3, rb.velocity.y + jumpSpeed / 2);
-            else
+            else if(health > 0)
                 rb.velocity = new Vector2( direction.x * knockback, rb.velocity.y + jumpSpeed/2);
             StartCoroutine(Invincibility(iframes));
         }

@@ -40,6 +40,11 @@ public class Gunner : Enemy
 
     private void FixedUpdate()
     {
+        if (!playerInRange)
+        {
+            animator.SetBool("Attack", false);
+        }
+
         if (!playerInRange && !hit && canSeePlayer)
         {
             animator.SetBool("Moving", true);
@@ -119,6 +124,7 @@ public class Gunner : Enemy
                     yield break;
                 animator.SetBool("Attack", true);
             }
+            animator.SetBool("Attack", false);
         }
         else if (enemyInRange)
         {
