@@ -9,7 +9,7 @@ public class GroundExitState : MeleeBaseState
         base.OnEnter(stateMachine);
 
         attackIndex = 4;
-        duration = 1.25f;
+        duration = 1.16f;
         stateMachine.player.hit = false;
         stateMachine.player.canJump = false;
         animator.SetTrigger("Attack " + attackIndex);

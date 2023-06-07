@@ -118,6 +118,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  maxAmmo: 25
+  uiPanel: {fileID: 0}
   machine: {fileID: 0}
   moveSpeed: 1000
   jumpSpeed: 21

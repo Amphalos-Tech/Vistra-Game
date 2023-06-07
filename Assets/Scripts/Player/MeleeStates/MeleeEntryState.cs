@@ -15,7 +15,7 @@ public class MeleeEntryState : State
             stateMachine.player.animator.SetBool("Moving", false);
             State nextState = (State)new GroundEntryState();
             stateMachine.SetNextState(nextState);
-        } else
+        } else if (!stateMachine.player.animator.GetBool("isWallGrabbed"))
         {
             stateMachine.player.hit = true;
             stateMachine.player.rb.velocity = new Vector2(0, stateMachine.player.rb.velocity.y);

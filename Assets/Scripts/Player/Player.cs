@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 using UnityEngine.Tilemaps;
 
 public class Player : MonoBehaviour
@@ -25,6 +26,7 @@ public class Player : MonoBehaviour
     public LayerMask groundLayer;
     public LayerMask enemyLayer;
     public LayerMask platformLayer;
+    public LayerMask postProcessLayer;
     public bool meleeMC;
     public float dashSpeed;
     public float dashCooldown;
@@ -32,11 +34,11 @@ public class Player : MonoBehaviour
     public GameObject swapParticles2;
     public GameObject rangedBullet;
 
-    private float dashCooldownCount;
+    [HideInInspector] public float dashCooldownCount;
 
     public Animator animator;
     public Rigidbody2D rb;
-    private Vector2 moveDirection;
+    [HideInInspector] public Vector2 moveDirection;
     public bool canJump;
     private bool canDoubleJump;
     private bool wallOnLeft;
@@ -44,6 +46,7 @@ public class Player : MonoBehaviour
     private bool canDash;
     public bool hit;
     private GameObject otherPlayer;
+    private PostProcessVolume PostProcessor;
     public static byte[] upgrades;
     private static bool loadedUpgrades = false;
 
@@ -52,6 +55,10 @@ public class Player : MonoBehaviour
     private bool attack3;
     private bool attack4;
     private float rotz;
+    private bool turning;
+    private bool increasePulse = true;
+    [HideInInspector] public bool reducedSight;
+    [HideInInspector] public bool cancelled;
 
     // Start is called before the first frame update
     void Start()
@@ -67,8 +74,11 @@ public class Player : MonoBehaviour
         Physics.gravity = new Vector3(0, -9.8f, 0);
         Physics2D.IgnoreLayerCollision(gameObject.layer, 8);
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>(); 
-        if(!meleeMC)
+        animator = GetComponent<Animator>();
+        PostProcessor = GameObject.FindWithTag("PostProcessor").GetComponent<PostProcessVolume>();
+        PostProcessor.sharedProfile.GetSetting<Vignette>().intensity.value = 0.25f;
+        PostProcessor.sharedProfile.GetSetting<Vignette>().color.value = new Color(0f, 0f, 0f);
+        if (!meleeMC)
             gameObject.SetActive(false);
 
 
@@ -194,35 +204,32 @@ public class Player : MonoBehaviour
         if (Input.GetButtonDown("Attack") && meleeMC && machine.CurrentState.GetType() == typeof(Idle) && !animator.GetBool("isDashing"))
             machine.SetNextState(new MeleeEntryState());
         else if (Input.GetButtonDown("Attack") && !meleeMC && !animator.GetBool("isDashing") && !animator.GetBool("isWallGrabbed") && ammo-- > 0)
-        {
-            if (canJump)
-            {
-                rb.velocity = Vector2.zero;
-                hit = true;
-            }
             Ranged();
-        }
 
         if (attack1)
         {
-            Attack1(1);
+            Attack1(2);
         }
         else if (attack2)
         {
-            Attack2(1);
+            Attack2(2);
         }
         else if (attack3)
         {
-            Attack3(3);
+            Attack3(6);
         }
         else if (attack4)
         {
-            Attack4(4);
+            Attack4(8);
         }
+
+        if (health <= 20)
+            LowHealthEffect();
 
         if (health <= 0)
         {
             rb.velocity = Vector2.zero;
+            rb.isKinematic = true;
             gameObject.tag = "Untagged";
             gameObject.layer = 0;
             PausePanel.dead = true;
@@ -234,6 +241,67 @@ public class Player : MonoBehaviour
     public void Reset()
     {
         hit = false;
+        turning = false;
+    }
+
+    public void ReduceSight(bool increase)
+    {
+        StartCoroutine(SightReduction(increase));
+    }
+
+    public IEnumerator SightReduction(bool increase)
+    {
+        if (increase)
+        {
+            while (reducedSight && PostProcessor.sharedProfile.GetSetting<Vignette>().intensity.value < 0.5f)
+            {
+                PostProcessor.sharedProfile.GetSetting<Vignette>().intensity.value += Time.deltaTime;
+                yield return new WaitForSeconds(0.05f);
+            }
+
+        }
+        else
+        {
+            while (reducedSight && PostProcessor.sharedProfile.GetSetting<Vignette>().intensity.value > 0.29f)
+            {
+                PostProcessor.sharedProfile.GetSetting<Vignette>().intensity.value -= Time.deltaTime;
+                yield return new WaitForSeconds(0.05f);
+            }
+        }
+        if (PostProcessor.sharedProfile.GetSetting<Vignette>().intensity.value < 0.30f)
+            reducedSight = false;
+    }
+
+    private void LowHealthEffect()
+    {
+        StartCoroutine(HealthPulse());
+    }
+
+    public IEnumerator HealthPulse()
+    {
+        if (health <= 20)
+        {
+            Vignette vignette = PostProcessor.sharedProfile.GetSetting<Vignette>();
+            vignette.color.value = new Color(1f, 0f, 0f);
+            if(increasePulse)
+            {
+                while (vignette.intensity.value <= 0.35f)
+                {
+                    vignette.intensity.value += Time.deltaTime/25;
+                    yield return new WaitForSeconds(0.05f);
+                }
+                increasePulse = false;
+            }
+            else
+            {
+                while (vignette.intensity.value >= 0.3f)
+                {
+                    vignette.intensity.value -= Time.deltaTime/25 ;
+                    yield return new WaitForSeconds(0.05f);
+                }
+                increasePulse = true;
+            }
+        }
     }
 
     void FixedUpdate()
@@ -248,7 +316,8 @@ public class Player : MonoBehaviour
                     animator.SetBool("Moving", true);
                 else
                     animator.SetBool("Moving", false);
-                transform.localRotation = Quaternion.Euler(0, 180, 0);
+                if (!turning)
+                    transform.localRotation = Quaternion.Euler(0, 180, 0);
             }
             else if (rb.velocity.x > 0)
             {
@@ -256,7 +325,8 @@ public class Player : MonoBehaviour
                     animator.SetBool("Moving", true);
                 else
                     animator.SetBool("Moving", false);
-                transform.localRotation = Quaternion.Euler(0, 0, 0);
+                if (!turning)
+                    transform.localRotation = Quaternion.Euler(0, 0, 0);
             }
             else
                 animator.SetBool("Moving", false);
@@ -302,7 +372,12 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(0.15f);
 
         animator.SetBool("isDashing", false);
+        if (cancelled)
+            dashSpeed *= 2.5f;
+        cancelled = false;
         Physics2D.IgnoreLayerCollision(6, 7, false);
+        if (meleeMC)
+            machine.SetNextStateToMain();
         invincible = false;
     }
 
@@ -384,7 +459,8 @@ public class Player : MonoBehaviour
         {
             health -= damage;
             uiPanel.Health -= damage;
-            StartCoroutine(Shake(0.25f, damage / 25));
+
+            StartCoroutine(Shake(0.25f, damage / 25, true));
             if (meleeMC)
                 machine.SetNextState(new Idle());
             else
@@ -392,7 +468,7 @@ public class Player : MonoBehaviour
             StartCoroutine(Stopper(Mathf.Clamp(iframes, 0, 0.5f)));
             if(Mathf.Abs(transform.position.x - enemypos.x) < 2f)
                 rb.velocity = new Vector2( direction.x * knockback * 3, rb.velocity.y + jumpSpeed / 2);
-            else
+            else if(health > 0)
                 rb.velocity = new Vector2( direction.x * knockback, rb.velocity.y + jumpSpeed/2);
             StartCoroutine(Invincibility(iframes));
         }
@@ -417,10 +493,10 @@ public class Player : MonoBehaviour
         {
             attack1 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
-            if (hitEnemy != null)
+            if (hitEnemy.GetComponent<Enemy>() != null)
             {
                 Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
+                hitEnemy.GetComponent<Enemy>().Hit(damage, dir);    
                 if (ammo < maxAmmo)
                     uiPanel.Ammo = ++ammo;
             }
@@ -440,12 +516,12 @@ public class Player : MonoBehaviour
             x *= -1;
         }
 
-        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 1.5f, enemyLayer);
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 2f, enemyLayer);
         if (enemy)
         {
             attack2 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
-            if (hitEnemy != null)
+            if (hitEnemy.GetComponent<Enemy>() != null)
             {
                 Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
                 hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
@@ -468,12 +544,12 @@ public class Player : MonoBehaviour
             direction = Vector2.left;
         }
 
-        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 3.5f, enemyLayer);
+        RaycastHit2D enemy = Physics2D.BoxCast(new Vector2(transform.position.x + x, transform.position.y), size, 0f, direction, 4f, enemyLayer);
         if (enemy)
         {
             attack3 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
-            if (hitEnemy != null)
+            if (hitEnemy.GetComponent<Enemy>() != null)
             {
                 Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
                 hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
@@ -501,10 +577,10 @@ public class Player : MonoBehaviour
         {
             attack4 = false;
             GameObject hitEnemy = enemy.collider.gameObject;
-            if (hitEnemy != null)
+            if (hitEnemy.GetComponent<Enemy>() != null)
             {
                 Vector2 dir = new Vector2(hitEnemy.transform.position.x - transform.position.x, hitEnemy.transform.position.y - transform.position.y).normalized;
-                StartCoroutine(Shake(0.1f, 0.5f));
+                StartCoroutine(Shake(0.1f, 0.5f, false));
                 hitEnemy.GetComponent<Enemy>().Hit(damage, dir);
                 if (ammo < maxAmmo)
                     uiPanel.Ammo = ++ammo;
@@ -568,17 +644,26 @@ public class Player : MonoBehaviour
 
     public void Ranged()
     {
+        if (canJump)
+        {
+            rb.velocity = Vector2.zero;
+            hit = true;
+        }
         float x = 0f;
         float y = 0f;
 
+
         if (transform.rotation == Quaternion.Euler(0, 0, 0))
         {
-            if(rotz >-90 && rotz <= 100)
+            if (rotz > -90 && rotz <= 90)
             {
                 hit = false;
                 x = 0;
                 y = 0;
-                ammo++;
+                transform.localRotation = Quaternion.Euler(0, 180, 0);
+                turning = true;
+                Ranged();
+               // StartCoroutine(Turn());
             } else if ((rotz <= -170 || rotz > 170f)) {
                 animator.SetTrigger("Shooting");
                 x = 3.125f;
@@ -606,12 +691,15 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if((rotz < -90 && rotz > -180) || (rotz > 80 && rotz <= 180))
+            if((rotz < -90 && rotz > -180) || (rotz > 90 && rotz <= 180))
             {
                 hit = false;
                 x = 0;
                 y = 0;
-                ammo++;
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+                turning = true;
+                Ranged();
+                //StartCoroutine(Turn());
             } else if(((rotz >= -10f && rotz <= 0) || (rotz <= 10f && rotz > 0)))
             {
                 animator.SetTrigger("Shooting");
@@ -622,12 +710,12 @@ public class Player : MonoBehaviour
                 animator.SetTrigger("Shooting Down");
                 x = -3.07f;
                 y = -1.28f;
-            } else if((rotz < -10 && rotz >= -70))
+            } else if((rotz < -10 && rotz >= -50))
             {
                 animator.SetTrigger("Shooting Up");
                 x = -3.07f;
                 y = 1.35f;
-            } else if((rotz > -90 && rotz < -70))
+            } else if((rotz > -90 && rotz < -50))
             {
                 animator.SetTrigger("Shooting Straight Up");
                 x = -2.14f;
@@ -650,10 +738,18 @@ public class Player : MonoBehaviour
             uiPanel.Ammo = ammo;
     }
 
-    public IEnumerator Shake(float time, float amount)
+    public IEnumerator Shake(float time, float amount, bool damage)
     {
-        //Vector3 ogpos = Camera.main.transform.position;
         float timeElapsed = 0f;
+        ChromaticAberration chrom = ScriptableObject.CreateInstance<ChromaticAberration>();
+        if (damage)
+        {
+            chrom.enabled.Override(true);
+            chrom.intensity.Override(0.5f);
+            chrom.fastMode.Override(true);
+            PostProcessor.sharedProfile.AddSettings(chrom);
+        }
+            
 
         while (timeElapsed < time)
         {
@@ -667,6 +763,11 @@ public class Player : MonoBehaviour
             yield return 0;
         }
 
+        if(damage)
+        {
+            chrom.intensity.Override(0f);
+            PostProcessor.sharedProfile.AddSettings(chrom);
+        }
         Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y + Camera.main.GetComponent<CameraFollow>().yoffset, -10);
     }
 }

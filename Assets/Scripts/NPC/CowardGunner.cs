@@ -46,24 +46,26 @@ public class CowardGunner : Enemy
         if (!playerInRange && !hit && canSeePlayer)
         {
             animator.SetBool("Moving", true);
+            animator.SetBool("Attack", false);
             rb.velocity = new Vector2(direction.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
         }
-        else if (!attacking && !hit && playerInRange && (!playerTooClose || OnWall))
+        else if (!attacking && !hit && canSeePlayer && playerInRange && (!playerTooClose || OnWall))
         {
             animator.SetBool("Moving", false);
             rb.velocity = new Vector2(0, rb.velocity.y);
-            animator.SetTrigger("Attack");
+            animator.SetBool("Attack", true);
             StartCoroutine(Attack());
 
         } else if(playerTooClose && !hit && !OnWall)
         {
             animator.SetBool("Moving", true);
+            animator.SetBool("Attack", false);
             rb.velocity = new Vector2(-direction.x * moveSpeed * Time.fixedDeltaTime, rb.velocity.y);
         } else if(canSeeEnemy && !hit && !attacking)
         {
             animator.SetBool("Moving", false);
             rb.velocity = new Vector2(0, rb.velocity.y);
-            animator.SetTrigger("Attack");
+            animator.SetBool("Attack", true);
             StartCoroutine(Attack());
         }
         else if(!hit)
@@ -132,33 +134,39 @@ public class CowardGunner : Enemy
         attacking = true;
         if(playerInRange)
         {
-            while (playerInRange)
+            while (playerInRange && !hit && canSeePlayer)
             {
                 yield return new WaitForSeconds(1f);
-                animator.SetTrigger("Attack");
+                animator.SetBool("Attack", true);
             }
         } else if(enemyInRange)
         {
             while(enemyInRange)
             {
                 yield return new WaitForSeconds(1f);
-                animator.SetTrigger("Attack");
+                animator.SetBool("Attack", true);
             }
         }
         attacking = false;
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player") && health > 0)
         {
             collision.gameObject.GetComponent<Player>().Hit(5f, 0.75f, direction, 15f, transform.position);
         }
-        if(playerTooClose && collision.gameObject.CompareTag("Ground") && rb.velocity.x <= 1)
+        if (playerTooClose && collision.gameObject.CompareTag("Ground") && rb.velocity.x <= 20 && !collision.gameObject.CompareTag("Player") && (Physics2D.BoxCast(transform.position, gameObject.GetComponent<BoxCollider2D>().size, 0f, Vector2.left, 0.3f, obstruction) || Physics2D.BoxCast(transform.position, gameObject.GetComponent<BoxCollider2D>().size, 0, Vector2.right, 0.3f, obstruction)))
         {
             OnWall = true;
-        } else
+            animator.SetTrigger("Cornered");
+        }
+        else
+        {
             OnWall = false;
+            animator.SetTrigger("Saved");
+        }
     }
+
 
     protected override void OnDrawGizmosSelected()
     {
@@ -312,20 +320,34 @@ public class CowardGunner : Enemy
 
     public void Shoot()
     {
-        Instantiate(bullet, new Vector2(transform.position.x + offset * 3f, transform.position.y), transform.localRotation);
+        if(canSeePlayer)
+            Instantiate(bullet, new Vector2(transform.position.x + offset * 3f, transform.position.y), transform.localRotation);
+        else if(canSeeEnemy)
+            Instantiate(bullet, new Vector2(transform.position.x + offset * 3f, transform.position.y), transform.localRotation);
+
+    }
+
+    public void StopAttack()
+    {
+        animator.SetBool("Attack", false);
     }
 
     public override void Hit(float damage, Vector2 d)
     {
         base.Hit(damage, d);
 
-        rb.velocity = new Vector2(d.x * knockbackTaken, rb.velocity.y + knockHeight);
+        if(canSeePlayer)
+            rb.velocity = new Vector2(d.x * knockbackTaken, rb.velocity.y + knockHeight);
+        else
+            rb.velocity = new Vector2(d.x * knockbackTaken/2, rb.velocity.y + knockHeight);
         hit = true;
         StartCoroutine(ColorIndicator());
     }
 
     IEnumerator ColorIndicator()
     {
+        if(canSeePlayer)
+            animator.SetBool("Attack", false);
         GetComponent<SpriteRenderer>().color = new Color(1, 0.675f, 0.675f);
         yield return new WaitForSeconds(0.75f);
         GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);

@@ -147,10 +147,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   angle: 360
-  radius: 45
+  radius: 25
   height: 7
   delay: 0.25
-  maxHealth: 15
+  maxHealth: 5
   health: 0
   playerLayer:
     serializedVersion: 2
@@ -161,13 +161,13 @@ MonoBehaviour:
   obstruction:
     serializedVersion: 2
     m_Bits: 8
-  range: 25
+  range: 20
   rangeHeight: 3
   moveSpeed: 750
   knockbackTaken: 5
   knockHeight: 3
   bullet: {fileID: 5972418308801878206, guid: 2be141b750edc4e478b0cac59802b112, type: 3}
-  closeRange: 15
+  closeRange: 10
 --- !u!50 &1193148859375976787
 Rigidbody2D:
   serializedVersion: 4

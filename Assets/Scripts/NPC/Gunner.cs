@@ -40,6 +40,11 @@ public class Gunner : Enemy
 
     private void FixedUpdate()
     {
+        if (!playerInRange)
+        {
+            animator.SetBool("Attack", false);
+        }
+
         if (!playerInRange && !hit && canSeePlayer)
         {
             animator.SetBool("Moving", true);
@@ -53,7 +58,7 @@ public class Gunner : Enemy
             else
             {
                 rb.velocity = Vector2.zero;
-                animator.SetTrigger("Attack");
+                animator.SetBool("Attack", true);
                 StartCoroutine(Attack());
             }
 
@@ -62,7 +67,7 @@ public class Gunner : Enemy
         {
             animator.SetBool("Moving", false);
             rb.velocity = new Vector2(0, rb.velocity.y);
-            animator.SetTrigger("Attack");
+            animator.SetBool("Attack", true);
             StartCoroutine(Attack());
         }
         else
@@ -115,15 +120,18 @@ public class Gunner : Enemy
             while (playerInRange)
             {
                 yield return new WaitForSeconds(1f);
-                animator.SetTrigger("Attack");
+                if (hit)
+                    yield break;
+                animator.SetBool("Attack", true);
             }
+            animator.SetBool("Attack", false);
         }
         else if (enemyInRange)
         {
             while (enemyInRange)
             {
                 yield return new WaitForSeconds(1f);
-                animator.SetTrigger("Attack");
+                animator.SetBool("Attack", true);
             }
         }
         attacking = false;
@@ -252,17 +260,27 @@ public class Gunner : Enemy
         Instantiate(bullet, new Vector2(transform.position.x + offset * 3f, transform.position.y), transform.localRotation);
     }
 
+    public void StopAttack()
+    {
+        animator.SetBool("Attack", false);
+    }
+
     public override void Hit(float damage, Vector2 d)
     {
         base.Hit(damage, d);
 
-        rb.velocity = new Vector2(d.x * knockbackTaken, rb.velocity.y + knockHeight);
+        if (canSeePlayer)
+            rb.velocity = new Vector2(d.x * knockbackTaken, rb.velocity.y + knockHeight);
+        else
+            rb.velocity = new Vector2(d.x * knockbackTaken / 2, rb.velocity.y + knockHeight);
         hit = true;
         StartCoroutine(ColorIndicator());
     }
 
     IEnumerator ColorIndicator()
     {
+        if(canSeePlayer)
+            animator.SetBool("Attack", false);
         GetComponent<SpriteRenderer>().color = new Color(1, 0.675f, 0.675f);
         yield return new WaitForSeconds(0.5f);
         GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);

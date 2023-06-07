@@ -37,7 +37,7 @@ public class Knight : Enemy
         if (health <= 0)
         {
             animator.SetTrigger("Die");
-            gameObject.GetComponent<RifleSlapper>().enabled = false;
+            gameObject.GetComponent<Knight>().enabled = false;
         }
         if (!canSeePlayer)
             StartCoroutine(EnemyChecker());
