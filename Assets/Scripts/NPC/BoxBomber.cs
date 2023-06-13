@@ -77,7 +77,7 @@ public class BoxBomber : Enemy
                     yield break;
                 animator.SetBool("Throw", true);
             }
-            animator.SetBool("Attack", false);
+            animator.SetBool("Throw", false);
         }
         attacking = false;
     }
@@ -86,14 +86,14 @@ public class BoxBomber : Enemy
     
 
 
-    public void Shoot()
+    public void Throw()
     {
-        Instantiate(bullet, new Vector2(transform.position.x + offset * 3f + projectileOffset.x, transform.position.y + projectileOffset.y), transform.localRotation);
+        Instantiate(bullet, new Vector2(transform.position.x + offset * projectileOffset.x, transform.position.y + projectileOffset.y), transform.localRotation);
     }
 
     public void StopAttack()
     {
-        animator.SetBool("Attack", false);
+        animator.SetBool("Throw", false);
     }
 
     public override void Hit(float damage, Vector2 d)
