@@ -43927,9 +43927,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   angle: 360
-  radius: 15
+  radius: 20
   height: 10
-  delay: 0.5
+  delay: 0.1
   maxHealth: 5
   health: 0
   playerLayer:
@@ -44072,7 +44072,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2112137588}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 32.724674, y: 99.47719, z: 0}
+  m_LocalPosition: {x: 34.59, y: 99.47719, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

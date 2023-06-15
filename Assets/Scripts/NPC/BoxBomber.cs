@@ -1,6 +1,8 @@
 using Mono.Cecil.Cil;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class BoxBomber : Enemy
@@ -17,14 +19,19 @@ public class BoxBomber : Enemy
     private Animator animator;
     private Rigidbody2D rb;
     private bool hit;
+    private bool unhit;
     private Vector2 enemyDirection;
     private bool canSeeEnemy;
     private bool enemyInRange;
+
+    public event Action<bool> unhitChanged;
+
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        unhit = true;
         base.Exist();
     }
 
@@ -34,9 +41,14 @@ public class BoxBomber : Enemy
 
     }
 
+    
+
     private void FixedUpdate()
     {
-        animator.SetBool("IsInRange", canSeePlayer);
+        if (unhit)
+            animator.SetBool("IsInRange", canSeePlayer);
+        else
+            animator.SetBool("IsInRange", true);
 
         if (canSeePlayer)
         {
@@ -83,12 +95,13 @@ public class BoxBomber : Enemy
     }
 
 
-    
+
 
 
     public void Throw()
     {
-        Instantiate(bullet, new Vector2(transform.position.x + offset * projectileOffset.x, transform.position.y + projectileOffset.y), transform.localRotation);
+        var bomb = Instantiate(bullet, new Vector2(transform.position.x + offset * projectileOffset.x, transform.position.y + projectileOffset.y), transform.localRotation);
+        unhitChanged += bomb.GetComponent<PipeBomb>().SpeedChange;
     }
 
     public void StopAttack()
@@ -105,6 +118,9 @@ public class BoxBomber : Enemy
         else
             rb.velocity = new Vector2(d.x * knockbackTaken / 2, rb.velocity.y + knockHeight);
         hit = true;
+        unhit = false;
+        unhitChanged.Invoke(unhit);
+        StartCoroutine(CloseCheck());
         StartCoroutine(ColorIndicator());
     }
 
@@ -116,5 +132,23 @@ public class BoxBomber : Enemy
         yield return new WaitForSeconds(0.5f);
         GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
         hit = false;
+    }
+
+    IEnumerator CloseCheck()
+    {
+        while (!unhit)
+        {
+            yield return new WaitForSeconds(2f);
+            if(Physics2D.OverlapCircle(transform.position, radius*1.5f, playerLayer) == null)
+            {
+                unhit = true;
+                unhitChanged.Invoke(unhit);
+            }
+            else if(canSeePlayer)
+            {
+                unhit = true;
+                unhitChanged.Invoke(unhit);
+            }
+        }
     }
 }
