@@ -10,7 +10,10 @@ public class PipeBomb : MonoBehaviour
     public float iframes;
     public float knockback;
     public LayerMask groundLayer;
+    public LayerMask playerLayer;
+    public GameObject explosion;
     Rigidbody2D rb;
+
 
     // Start is called before the first frame update
     void Start()
@@ -26,19 +29,36 @@ public class PipeBomb : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        Vector2 direction;
+        if (transform.position.x < collision.gameObject.transform.position.x)
+            direction = new Vector2(1, 0);
+        else
+            direction = new Vector2(-1, 0);
         if (collision.gameObject.CompareTag("Player"))
         {
-            Vector2 direction;
-            if (transform.position.x < collision.gameObject.transform.position.x)
-                direction = new Vector2(1, 0);
-            else
-                direction = new Vector2(-1, 0);
-
+            GameObject particles = Instantiate(explosion, transform.position, Quaternion.identity);
+            Destroy(particles, 0.4f);
             collision.gameObject.GetComponent<Player>().Hit(damage, iframes, direction, knockback, transform.position);
             Destroy(gameObject);
         } else if(collision.gameObject.CompareTag("Ground"))
         {
-
+            GameObject particles = Instantiate(explosion, transform.position, Quaternion.identity);
+            Destroy(particles, 0.4f);
+            Collider2D playerOverlap = Physics2D.OverlapCircle(transform.position, 3f, playerLayer);
+            if(playerOverlap != null)
+            {
+               playerOverlap.gameObject.GetComponent<Player>().Hit(damage, iframes, direction, knockback, transform.position);
+            }
+            Destroy(gameObject);
         }
+    }
+
+    public void SpeedChange(bool unhit)
+    {
+        Debug.Log("Game");
+        if (unhit)
+            speed *= 4;
+        else
+            speed /= 4;
     }
 }

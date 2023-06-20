@@ -1,6 +1,8 @@
 using Mono.Cecil.Cil;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class BoxBomber : Enemy
@@ -17,14 +19,18 @@ public class BoxBomber : Enemy
     private Animator animator;
     private Rigidbody2D rb;
     private bool hit;
+    private bool unhit;
     private Vector2 enemyDirection;
     private bool canSeeEnemy;
     private bool enemyInRange;
+
+
     // Start is called before the first frame update
     void Start()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        unhit = true;
         base.Exist();
     }
 
@@ -34,9 +40,14 @@ public class BoxBomber : Enemy
 
     }
 
+    
+
     private void FixedUpdate()
     {
-        animator.SetBool("IsInRange", canSeePlayer);
+        if (unhit)
+            animator.SetBool("IsInRange", canSeePlayer);
+        else
+            animator.SetBool("IsInRange", true);
 
         if (canSeePlayer)
         {
@@ -55,7 +66,7 @@ public class BoxBomber : Enemy
 
         if (health <= 0)
         {
-            //animator.SetTrigger("Die");
+            animator.SetTrigger("Die");
             gameObject.GetComponent<BoxBomber>().enabled = false;
         }
     }
@@ -83,12 +94,12 @@ public class BoxBomber : Enemy
     }
 
 
-    
+
 
 
     public void Throw()
     {
-        Instantiate(bullet, new Vector2(transform.position.x + offset * projectileOffset.x, transform.position.y + projectileOffset.y), transform.localRotation);
+        var bomb = Instantiate(bullet, new Vector2(transform.position.x + offset * projectileOffset.x, transform.position.y + projectileOffset.y), transform.localRotation);
     }
 
     public void StopAttack()
@@ -105,6 +116,7 @@ public class BoxBomber : Enemy
         else
             rb.velocity = new Vector2(d.x * knockbackTaken / 2, rb.velocity.y + knockHeight);
         hit = true;
+        unhit = false;
         StartCoroutine(ColorIndicator());
     }
 
