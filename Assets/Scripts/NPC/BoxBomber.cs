@@ -24,7 +24,6 @@ public class BoxBomber : Enemy
     private bool canSeeEnemy;
     private bool enemyInRange;
 
-    public event Action<bool> unhitChanged;
 
     // Start is called before the first frame update
     void Start()
@@ -67,7 +66,7 @@ public class BoxBomber : Enemy
 
         if (health <= 0)
         {
-            //animator.SetTrigger("Die");
+            animator.SetTrigger("Die");
             gameObject.GetComponent<BoxBomber>().enabled = false;
         }
     }
@@ -101,7 +100,6 @@ public class BoxBomber : Enemy
     public void Throw()
     {
         var bomb = Instantiate(bullet, new Vector2(transform.position.x + offset * projectileOffset.x, transform.position.y + projectileOffset.y), transform.localRotation);
-        unhitChanged += bomb.GetComponent<PipeBomb>().SpeedChange;
     }
 
     public void StopAttack()
@@ -119,8 +117,6 @@ public class BoxBomber : Enemy
             rb.velocity = new Vector2(d.x * knockbackTaken / 2, rb.velocity.y + knockHeight);
         hit = true;
         unhit = false;
-        unhitChanged.Invoke(unhit);
-        StartCoroutine(CloseCheck());
         StartCoroutine(ColorIndicator());
     }
 
@@ -132,23 +128,5 @@ public class BoxBomber : Enemy
         yield return new WaitForSeconds(0.5f);
         GetComponent<SpriteRenderer>().color = new Color(1, 1, 1);
         hit = false;
-    }
-
-    IEnumerator CloseCheck()
-    {
-        while (!unhit)
-        {
-            yield return new WaitForSeconds(2f);
-            if(Physics2D.OverlapCircle(transform.position, radius*1.5f, playerLayer) == null)
-            {
-                unhit = true;
-                unhitChanged.Invoke(unhit);
-            }
-            else if(canSeePlayer)
-            {
-                unhit = true;
-                unhitChanged.Invoke(unhit);
-            }
-        }
     }
 }
